@@ -134,8 +134,14 @@ int main(int argc, char *argv[])
             printf("Found %d potential matches\n",number_of_matches);
             for (int i = 0; i<number_of_matches; i++) {
                 Contact* match = potentialMatches[i];
-                printContact(*match);
+                if (i == number_of_matches - 1) {
+                    printf("%s %s - %d",match->first_name,match->last_name,match->index);
+                }
+                else {
+                    printf("%s %s - %d, ",match->first_name,match->last_name,match->index);
+                }
             }
+            printf("\n");
             free(potentialMatches);
         }
     }
