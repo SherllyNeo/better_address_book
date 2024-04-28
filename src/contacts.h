@@ -10,8 +10,12 @@ int deleteContact(Contact contact, char* filepath);
 
 int addNewContact(Contact contact,char* filepath);
 
+int editContact(Contact contact,char* filepath);
+
 void printContact(Contact contact);
 
 int readContacts(Contact contacts[], char* filepath);
+
+int initContact(Contact* contact);
 
 #endif

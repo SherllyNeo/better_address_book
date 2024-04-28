@@ -27,13 +27,9 @@ int writeLine(Contact contact,char* filepath, int line) {
             "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
             ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address_line1,contact.address_line2,contact.city,contact.state,contact.post_code,contact.notes);
 
-    for (int i = 0; i<strlen(stringToWrite); i++) {
-        if (stringToWrite[i] == ',') {
-            stringToWrite[i] = ';';
-        }
-    }
 
-    FILE* fp = fopen(filepath,"w");
+
+    FILE* fp = fopen(filepath,"r");
     if (fp == NULL) {
         return 1;
     }
@@ -48,18 +44,21 @@ int writeLine(Contact contact,char* filepath, int line) {
     // replacing the specified line with the new contact
     int current_line = 0;
     char buffer[LINESIZE];
+    bool lineAppended = 0;
     while (fgets(buffer, LINESIZE, fp) != NULL) {
         current_line++;
         if (current_line == line) {
             // Write new contact information to temporary file
-            fprintf(tempFile, "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
-                    contact.first_name, contact.last_name, contact.email, contact.phone,
-                    contact.address_line1, contact.address_line2, contact.city, contact.state,
-                    contact.post_code, contact.notes);
+            fprintf(tempFile, "%s",stringToWrite);
+            lineAppended = 1;
         } else {
             // Write original line from file to temporary file
             fputs(buffer, tempFile);
         }
+    }
+
+    if (!lineAppended && current_line < line) {
+        fprintf(tempFile, "%s\n", stringToWrite);
     }
 
     fclose(fp);

@@ -61,8 +61,12 @@ int deleteContact(Contact contact, char* filepath) {
 
 
 int addNewContact(Contact contact,char* filepath) {
-    int lines = countLines(filepath);
+    int lines = countLines(filepath) + 1;
     return writeLine(contact, filepath, lines);
+}
+
+int editContact(Contact contact,char* filepath) {
+    return writeLine(contact, filepath,contact.index);
 }
 
 
@@ -106,7 +110,7 @@ int readContacts(Contact contacts[], char* filepath) {
 
 
         contacts[count].index = index;
-        index ++;
+        index++;
         count++;
         if (count >= MAX_CONTACTS) {
             break; // Maximum contacts reached
@@ -116,4 +120,65 @@ int readContacts(Contact contacts[], char* filepath) {
     fclose(file);
     return count; // Number of contacts read
 }
+
+int initContact(Contact* contact) {
+    printf("Enter first name: ");
+    contact->first_name[0] = '\0';
+    fgets(contact->first_name, sizeof(contact->first_name), stdin);
+    contact->first_name[strcspn(contact->first_name, "\n")] = '\0'; // Remove newline character if present
+
+    printf("Enter last name: ");
+    contact->last_name[0] = '\0';
+    fgets(contact->last_name, sizeof(contact->last_name), stdin);
+    contact->last_name[strcspn(contact->last_name, "\n")] = '\0';
+
+    printf("Enter email: ");
+    contact->email[0] = '\0';
+    fgets(contact->email, sizeof(contact->email), stdin);
+    contact->email[strcspn(contact->email, "\n")] = '\0';
+
+    printf("Enter phone: ");
+    contact->phone[0] = '\0';
+    fgets(contact->phone, sizeof(contact->phone), stdin);
+    contact->phone[strcspn(contact->phone, "\n")] = '\0';
+
+    printf("Enter address line 1: ");
+    contact->address_line1[0] = '\0';
+    fgets(contact->address_line1, sizeof(contact->address_line1), stdin);
+    contact->address_line1[strcspn(contact->address_line1, "\n")] = '\0';
+
+    printf("Enter address line 2: ");
+    contact->address_line2[0] = '\0';
+    fgets(contact->address_line2, sizeof(contact->address_line2), stdin);
+    contact->address_line2[strcspn(contact->address_line2, "\n")] = '\0';
+
+    printf("Enter city: ");
+    contact->city[0] = '\0';
+    fgets(contact->city, sizeof(contact->city), stdin);
+    contact->city[strcspn(contact->city, "\n")] = '\0';
+
+    printf("Enter state: ");
+    contact->state[0] = '\0';
+    fgets(contact->state, sizeof(contact->state), stdin);
+    contact->state[strcspn(contact->state, "\n")] = '\0';
+
+    printf("Enter post code: ");
+    contact->post_code[0] = '\0';
+    fgets(contact->post_code, sizeof(contact->post_code), stdin);
+    contact->post_code[strcspn(contact->post_code, "\n")] = '\0';
+
+    printf("Enter country: ");
+    contact->country[0] = '\0';
+    fgets(contact->country, sizeof(contact->country), stdin);
+    contact->country[strcspn(contact->country, "\n")] = '\0';
+
+    printf("Enter notes: ");
+    contact->notes[0] = '\0';
+    fgets(contact->notes, sizeof(contact->notes), stdin);
+    contact->notes[strcspn(contact->notes, "\n")] = '\0';
+
+    // Additional fields can be added if necessary
+    return 0; // Return success
+}
+
 
