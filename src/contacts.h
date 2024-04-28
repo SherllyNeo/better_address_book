@@ -12,7 +12,6 @@ int addNewContact(Contact contact,char* filepath);
 
 void printContact(Contact contact);
 
-
 int readContacts(Contact contacts[], char* filepath);
 
 #endif
