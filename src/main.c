@@ -160,18 +160,21 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
         // Process user input
         switch(ch) {
             case KEY_UP:
+            case 'k':
                 highlight--;
                 if (highlight < 0) {
                     highlight = num_properties - 1;
                 }
                 break;
             case KEY_DOWN:
+            case 'j':
                 highlight++;
                 if (highlight >= num_properties) {
                     highlight = 0;
                 }
                 break;
             case 10: /* Enter key */
+            case 'l':
                 if (!editing && !choosing_property) {
                     // Enter choosing property mode
                     choosing_property = true;
@@ -208,6 +211,7 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
                 chosen_property = -1;
                 break;
             case 'q':
+            case 'h':
                 wclear(win);
                 return;
             case KEY_BACKSPACE:
@@ -275,6 +279,7 @@ void display_contacts(Contact contacts[], int num_contacts, void (*update_callba
         // Process user input
         switch(choice) {
             case KEY_UP:
+            case 'k':
                 highlight--;
                 if (highlight < 0) {
                     highlight = 0;
@@ -284,6 +289,7 @@ void display_contacts(Contact contacts[], int num_contacts, void (*update_callba
                 }
                 break;
             case KEY_DOWN:
+            case 'j':
                 highlight++;
                 if (highlight >= LINES - 3 || start_contact + highlight >= num_contacts) {
                     highlight = LINES - 4;
@@ -293,6 +299,7 @@ void display_contacts(Contact contacts[], int num_contacts, void (*update_callba
                 }
                 break;
             case 10: /* Enter key */
+            case 'l':
                 // Display the selected contact
                 keypad(win, false);
                 keypad(winContacts, true);
