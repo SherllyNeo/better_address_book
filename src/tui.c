@@ -6,7 +6,7 @@
 // Function to display a contact
 void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Contact)) {
     int highlight = 0;
-    int num_properties = 4;
+    int num_properties = 11;
     int ch;
     bool editing = false;
     bool choosing_property = false; // Flag to indicate if the user is choosing a property to edit
@@ -26,18 +26,21 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
             if (i < num_properties) {
                 switch (i) {
                     case 0:
-                        mvwprintw(win, 1, 1, "Name: %s %s", contact.first_name, contact.last_name);
+                        mvwprintw(win, 1, 1, "First Name: %s %s", contact.first_name, contact.last_name);
                         break;
                     case 1:
-                        mvwprintw(win, 2, 1, "Email: %s", contact.email);
+                        mvwprintw(win, 1, 1, "Last Name: %s", contact.first_name);
                         break;
                     case 2:
-                        mvwprintw(win, 3, 1, "Phone: %s", contact.phone);
+                        mvwprintw(win, 2, 1, "Email: %s", contact.email);
                         break;
                     case 3:
-                        mvwprintw(win, 4, 1, "Address: %s, %s, %s, %s, %s, %s", contact.address_line1, contact.address_line2, contact.city, contact.state, contact.post_code, contact.country);
+                        mvwprintw(win, 3, 1, "Phone: %s", contact.phone);
                         break;
                     case 4:
+                        mvwprintw(win, 4, 1, "Address: %s", contact.address);
+                        break;
+                    case 5:
                         mvwprintw(win, 5, 1, "Notes: %s", contact.notes);
                         break;
                 }
@@ -84,25 +87,7 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
                         strcpy(edited_value, contact.phone);
                         break;
                     case 3:
-                        if (property_choice == 0) {
-                            strcpy(edited_value, contact.address_line1);
-                        }
-                        else if (property_choice == 1) {
-                            strcpy(edited_value, contact.address_line2);
-                        }
-                        else if (property_choice == 2) {
-                            strcpy(edited_value, contact.city);
-                        }
-                        else if (property_choice == 3) {
-                            strcpy(edited_value, contact.state);
-                        }
-                        else if (property_choice == 4) {
-                            strcpy(edited_value, contact.post_code);
-                        }
-                        else if (property_choice == 5) {
-                            strcpy(edited_value, contact.country);
-                        }
-                        mvwprintw(win, num_properties + 5, 1, "Choose a property to edit, 0 - Address Line 1, 1 - Address Line 2, 2 - City, 3 - Sate, 4 - Post code, 5 - Country: %d",property_choice);
+                        strcpy(edited_value, contact.address);
                         break;
                     case 4:
                         strcpy(edited_value, contact.notes);
@@ -161,7 +146,7 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
                             strcpy(contact.phone, edited_value);
                             break;
                         case 3:
-                            strcpy(contact.address_line1, edited_value);
+                            strcpy(contact.address, edited_value);
                             break;
                         case 4:
                             strcpy(contact.notes, edited_value);

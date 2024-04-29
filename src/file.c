@@ -18,14 +18,14 @@ bool CheckIfFileExists(char *filepath)
 
 int writeLine(Contact contact,char* filepath, int line) {
     size_t lineSize = snprintf(NULL,0,
-            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
-            ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address_line1,contact.address_line2,contact.city,contact.state,contact.post_code,contact.notes);
+            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
+            ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address,contact.notes);
 
     char stringToWrite[lineSize+1];
     memset(stringToWrite,'\0',lineSize+1);
     snprintf(stringToWrite,LINESIZE,
-            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
-            ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address_line1,contact.address_line2,contact.city,contact.state,contact.post_code,contact.notes);
+            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
+            ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address,contact.notes);
 
 
 

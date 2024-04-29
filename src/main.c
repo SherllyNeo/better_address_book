@@ -73,12 +73,7 @@ int main(int argc, char *argv[])
         char* last_name = NULL;
         char* email = NULL;
         char* phone = NULL;
-        char* address_line1 = NULL;
-        char* address_line2 = NULL;
-        char* city = NULL;
-        char* state = NULL;
-        char* post_code = NULL;
-        char* country = NULL;
+        char* address = NULL;
         char* notes = NULL;
         char* target = NULL;
 
