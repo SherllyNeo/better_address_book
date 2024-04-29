@@ -94,9 +94,9 @@ int readContacts(Contact contacts[], char* filepath) {
         index = 1;
     }
 
-    while (fscanf(file, " \"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\"\n",
+    while (fscanf(file, "\"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\", \"%[^\"]\"\n",
                 contacts[count].first_name, contacts[count].last_name, contacts[count].email, contacts[count].phone,
-                contacts[count].address, contacts[count].notes) == 11) {
+                contacts[count].address, contacts[count].notes) == 6) {
 
 
         contacts[count].index = index;

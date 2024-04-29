@@ -160,7 +160,7 @@ int deleteLine(const char* filepath, int lineToDelete) {
 
 
 int initBook(char* filepath) {
-    char columns[] = "\"firstName\",\"LastName\",\"email\",\"phone\",\"addressLine1\",\"addressLine2\",\"city\",\"state\",\"postCode\",\"country\",\"notes\"\n";
+    char columns[] = "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n";
     FILE* fp = fopen(filepath,"w");
     if (fp == NULL) {
         return 1;
