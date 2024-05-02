@@ -80,38 +80,38 @@ int readContacts(Contact contacts[], char* filepath) {
 
     int count = 0;
 
-    bool header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
+    //bool header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
 
-    DSV parsed_csv = dsvParseFile(filepath, ',');
-    if (!parsed_csv.valid) {
-        fprintf(stderr, "unable to parse csv\n");
-        return 0;
-    }
+   // DSV parsed_csv = dsvParseFile(filepath, ',');
+   // if (!parsed_csv.valid) {
+   //     fprintf(stderr, "unable to parse csv\n");
+   //     return 0;
+   // }
 
-    if (header) {
-        int delete_failed = dsvRemoveRow(&parsed_csv, 0);
-        if (delete_failed) {
-            fprintf(stderr, "unable to delete header\n");
-            return 0;
-        }
-    }
+   // if (header) {
+   //     int delete_failed = dsvRemoveRow(&parsed_csv, 0);
+   //     if (delete_failed) {
+   //         fprintf(stderr, "unable to delete header\n");
+   //         return 0;
+   //     }
+   // }
 
-    for (size_t row = 0; row<parsed_csv.rows;row++) {
-        strncpy(contacts[row].first_name,parsed_csv.content[row][0],FirstName);
-        strncpy(contacts[row].last_name,parsed_csv.content[row][1],LastName);
-        strncpy(contacts[row].email,parsed_csv.content[row][2],Email);
-        strncpy(contacts[row].phone,parsed_csv.content[row][3],Phone);
-        strncpy(contacts[row].address,parsed_csv.content[row][4],Address);
-        strncpy(contacts[row].notes,parsed_csv.content[row][5],Notes);
-        contacts[row].index = row;
-    }
+   // for (size_t row = 0; row<parsed_csv.rows;row++) {
+   //     strncpy(contacts[row].first_name,parsed_csv.content[row][0],FirstName);
+   //     strncpy(contacts[row].last_name,parsed_csv.content[row][1],LastName);
+   //     strncpy(contacts[row].email,parsed_csv.content[row][2],Email);
+   //     strncpy(contacts[row].phone,parsed_csv.content[row][3],Phone);
+   //     strncpy(contacts[row].address,parsed_csv.content[row][4],Address);
+   //     strncpy(contacts[row].notes,parsed_csv.content[row][5],Notes);
+   //     contacts[row].index = row;
+   // }
 
-    count = parsed_csv.rows;
+   // count = parsed_csv.rows;
 
-    int freed = dsvFreeDSV(parsed_csv);
-    if (freed) {
-        fprintf(stderr, "unable to free parsed csv\n");
-    }
+   // int freed = dsvFreeDSV(parsed_csv);
+   // if (freed) {
+   //     fprintf(stderr, "unable to free parsed csv\n");
+   // }
 
 
     return count; 
@@ -211,26 +211,28 @@ int editContact(int index,char* filepath) {
 }
 
 int inspectContact(int index,char* filepath) {
+
+    char* filepath_tmp = strdup(filepath);
     printf("DEBUG 1\n");
     /* find contact at that index - read em and get */
     Contact contacts[MAX_CONTACTS] = { 0 };
-    printf("DEBUG 2\n");
-    //int count = readContacts(contacts, filepath);
-    int count = 0;
-    printf("DEBUG 3\n");
+    int count = readContacts(contacts, filepath_tmp);
 
     if (count <= 0) {
         fprintf(stderr,"unable to read contacts\n");
+        return 1;
     }
 
     if (index < 0 && index > count) {
         fprintf(stderr,"unable edit contact as index %d, does not exist\n",index);
+        return 1;
     }
 
     Contact chosen_contact = contacts[count];
 
     printContact(chosen_contact);
 
+    free(filepath_tmp);
     return 0;
 }
 
