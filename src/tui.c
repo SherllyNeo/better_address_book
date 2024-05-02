@@ -6,19 +6,17 @@
 // Function to display a contact
 void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Contact)) {
     int highlight = 0;
-    int num_properties = 11;
-    int ch;
+    int num_properties = 6;
+    char ch;
     bool editing = false;
-    bool choosing_property = false; // Flag to indicate if the user is choosing a property to edit
     char edited_value[200]; // Buffer for edited value
-    int chosen_property = -1; // Index of the chosen property to edit
 
     while (1) {
         wclear(win);
         box(win, 0, 0);
 
         // Display contact properties within the visible area
-        for (int i = 0; i <= num_properties; i++) {
+        for (int i = 0; i < num_properties; i++) {
             if (i == highlight) {
                 wattron(win, A_STANDOUT);
             }
@@ -26,7 +24,7 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
             if (i < num_properties) {
                 switch (i) {
                     case 0:
-                        mvwprintw(win, 1, 1, "First Name: %s %s", contact.first_name, contact.last_name);
+                        mvwprintw(win, 1, 1, "First Name: %s", contact.first_name);
                         break;
                     case 1:
                         mvwprintw(win, 1, 1, "Last Name: %s", contact.first_name);
@@ -54,50 +52,30 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
             mvwprintw(win, num_properties + 2, 1, "Press F1 to save");
         }
 
-        if (choosing_property) {
-            switch (highlight) {
-                case 0:
-                    mvwprintw(win, num_properties + 5, 1, "Choose a property to edit, 0 - FirstName, 1 - LastName: ");
-                    break;
-                case 3:
-                    mvwprintw(win, num_properties + 5, 1, "Choose a property to edit, 0 - Address Line 1, 1 - Address Line 2, 2 - City, 3 - Sate, 4 - Post code, 5 - Country: ");
-                    break;
-            }
-            wrefresh(win);
-            int property_choice = wgetch(win) - '0'; // Convert character input to integer
-            if (property_choice >= 1 && property_choice <= num_properties) {
-                chosen_property = property_choice - 1; // Adjust index to match array indexing
-                choosing_property = false;
-                editing = true;
-                // Initialize edited value buffer with the current value of the chosen property
-                switch (highlight) {
-                    case 0:
-                        if (property_choice == 0) {
-                            strcpy(edited_value, contact.first_name);
-                        }
-                        else if (property_choice == 1) {
-                            strcpy(edited_value, contact.last_name);
-                        }
-                        mvwprintw(win, num_properties + 5, 1, "Choose a property to edit, 0 - FirstName, 1 - LastName: %d",property_choice);
-                        break;
-                    case 1:
-                        strcpy(edited_value, contact.email);
-                        break;
-                    case 2:
-                        strcpy(edited_value, contact.phone);
-                        break;
-                    case 3:
-                        strcpy(edited_value, contact.address);
-                        break;
-                    case 4:
-                        strcpy(edited_value, contact.notes);
-                        break;
-                }
-            } else {
-                // Invalid property choice, reset choosing_property flag
-                choosing_property = false;
-            }
-        }
+         wrefresh(win);
+         // Initialize edited value buffer with the current value of the chosen property
+         if (editing) {
+             switch (highlight) {
+                 case 0:
+                     strcpy(edited_value, contact.first_name);
+                     break;
+                 case 1:
+                     strcpy(edited_value, contact.last_name);
+                     break;
+                 case 2:
+                     strcpy(edited_value, contact.email);
+                     break;
+                 case 3:
+                     strcpy(edited_value, contact.phone);
+                     break;
+                 case 4:
+                     strcpy(edited_value, contact.address);
+                     break;
+                 case 5:
+                     strcpy(edited_value, contact.notes);
+                     break;
+             }
+         }
 
         wrefresh(win);
 
@@ -109,26 +87,20 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
             case KEY_UP:
             case 'k':
                 highlight--;
-                if (highlight < 0) {
+                if (highlight <= 0) {
                     highlight = num_properties - 1;
                 }
                 break;
             case KEY_DOWN:
             case 'j':
                 highlight++;
-                if (highlight >= num_properties) {
-                    highlight = 0;
+                if (highlight > num_properties) {
+                    highlight = 1;
                 }
                 break;
             case 10: /* Enter key */
+                editing = true;
             case 'l':
-                if (!editing && !choosing_property) {
-                    // Enter choosing property mode
-                    choosing_property = true;
-                } else if (choosing_property) {
-                    // Cancel choosing property mode
-                    choosing_property = false;
-                }
                 break;
             case KEY_F(1): 
                 if (editing) {
@@ -155,7 +127,6 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
                     // Call the update callback
                     update_callback(contact);
                 }
-                chosen_property = -1;
                 break;
             case 'q':
             case 'h':
@@ -169,7 +140,6 @@ void display_contact(WINDOW *win, Contact contact, void (*update_callback)(Conta
                 }
                 break;
             default:
-            // If in editing mode, update edited value
                 if (editing) {
                     if (strlen(edited_value) < 199) {
                         // Append typed character to edited value

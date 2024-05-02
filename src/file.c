@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "shared.h"
+#include "dsvParser.h"
 
 bool CheckIfFileExists(char *filepath)
 {
@@ -17,62 +18,55 @@ bool CheckIfFileExists(char *filepath)
 
 
 int writeLine(Contact contact,char* filepath, int line) {
-    size_t lineSize = snprintf(NULL,0,
-            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
-            ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address,contact.notes);
+    char** row = (char**)malloc(sizeof(char*) * 6);
+    row[0] = strdup(contact.first_name);
+    row[1] = strdup(contact.last_name);
+    row[2] = strdup(contact.email);
+    row[3] = strdup(contact.phone);
+    row[4] = strdup(contact.address);
+    row[5] = strdup(contact.notes);
 
-    char stringToWrite[lineSize+1];
-    memset(stringToWrite,'\0',lineSize+1);
-    snprintf(stringToWrite,LINESIZE,
-            "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n"
-            ,contact.first_name,contact.last_name,contact.email,contact.phone,contact.address,contact.notes);
-
-
-
-    FILE* fp = fopen(filepath,"r");
-    if (fp == NULL) {
-        return 1;
+    DSV parsed_csv = dsvParseFile(filepath, ',');
+    if (!parsed_csv.valid) {
+        fprintf(stderr,"Unable to parse csv file to write line\n");
     }
-    // Open a temporary file for writing
-    FILE* tempFile = fopen("temp.txt", "w");
-    if (tempFile == NULL) {
-        fclose(fp);
-        return 1; // Error opening temporary file
+    int insert_failed = dsvInsertRow(&parsed_csv, row, line);
+    if (insert_failed) {
+        fprintf(stderr,"unable to insert row\n");
+    }
+    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
+    if (write_failed) {
+        fprintf(stderr,"unable to write updated csv\n");
     }
 
-    // Copy contents from original file to temporary file,
-    // replacing the specified line with the new contact
-    int current_line = 0;
-    char buffer[LINESIZE];
-    bool lineAppended = 0;
-    while (fgets(buffer, LINESIZE, fp) != NULL) {
-        current_line++;
-        if (current_line == line) {
-            // Write new contact information to temporary file
-            fprintf(tempFile, "%s",stringToWrite);
-            lineAppended = 1;
-        } else {
-            // Write original line from file to temporary file
-            fputs(buffer, tempFile);
-        }
+    dsvFreeDSV(parsed_csv);
+
+    return 0; // Success
+}
+
+int appendLine(Contact contact,char* filepath) {
+    char** row = (char**)malloc(sizeof(char*) * 6);
+    row[0] = strdup(contact.first_name);
+    row[1] = strdup(contact.last_name);
+    row[2] = strdup(contact.email);
+    row[3] = strdup(contact.phone);
+    row[4] = strdup(contact.address);
+    row[5] = strdup(contact.notes);
+
+    DSV parsed_csv = dsvParseFile(filepath, ',');
+    if (!parsed_csv.valid) {
+        fprintf(stderr,"Unable to parse csv file to write line\n");
+    }
+    int insert_failed = dsvInsertRow(&parsed_csv, row, parsed_csv.rows);
+    if (insert_failed) {
+        fprintf(stderr,"unable to insert row\n");
+    }
+    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
+    if (write_failed) {
+        fprintf(stderr,"unable to write updated csv\n");
     }
 
-    if (!lineAppended && current_line < line) {
-        fprintf(tempFile, "%s\n", stringToWrite);
-    }
-
-    fclose(fp);
-    fclose(tempFile);
-
-    // Remove original file
-    if (remove(filepath) != 0) {
-        return 1; // Error deleting original file
-    }
-
-    // Rename temporary file to original file
-    if (rename("temp.txt", filepath) != 0) {
-        return 1; // Error renaming temporary file
-    }
+    dsvFreeDSV(parsed_csv);
 
     return 0; // Success
 }
@@ -80,7 +74,7 @@ int writeLine(Contact contact,char* filepath, int line) {
 int startsWithHeader(const char* filepath, const char* expectedHeader) {
     FILE* file = fopen(filepath, "r");
     if (file == NULL) {
-        printf("Error opening file.\n");
+        fprintf(stderr,"Error opening file.\n");
         return 0; // Error opening file
     }
 
@@ -116,46 +110,24 @@ int countLines(const char* filepath) {
 }
 
 
-int deleteLine(const char* filepath, int lineToDelete) {
-    FILE* file = fopen(filepath, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return 1; // Error opening file
+int deleteLine(char* filepath, int lineToDelete) {
+    DSV parsed_csv = dsvParseFile(filepath, ',');
+
+    if (!parsed_csv.valid) {
+        fprintf(stderr,"Unable to parse csv file to write line\n");
+    }
+    int remove_failed = dsvRemoveRow(&parsed_csv, lineToDelete);
+    if (remove_failed) {
+        fprintf(stderr,"unable to insert row\n");
+    }
+    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
+    if (write_failed) {
+        fprintf(stderr,"unable to write updated csv\n");
     }
 
-    FILE* tempFile = fopen("temp.txt", "w");
-    if (tempFile == NULL) {
-        fclose(file);
-        printf("Error creating temporary file.\n");
-        return 1; // Error creating temporary file
-    }
+    dsvFreeDSV(parsed_csv);
 
-    int currentLine = 1;
-    char buffer[1024]; // Adjust the buffer size as needed
-    while (fgets(buffer, sizeof(buffer), file) != NULL) {
-        // If the current line is not the line to delete, write it to the temporary file
-        if (currentLine != lineToDelete) {
-            fputs(buffer, tempFile);
-        }
-        currentLine++;
-    }
-
-    fclose(file);
-    fclose(tempFile);
-
-    // Remove the original file
-    if (remove(filepath) != 0) {
-        printf("Error deleting original file.\n");
-        return 1; // Error deleting original file
-    }
-
-    // Rename the temporary file to the original file name
-    if (rename("temp.txt", filepath) != 0) {
-        printf("Error renaming temporary file.\n");
-        return 1; // Error renaming temporary file
-    }
-
-    return 0; // Success
+    return 0; 
 }
 
 

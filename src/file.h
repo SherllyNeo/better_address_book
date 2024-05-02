@@ -15,7 +15,7 @@ bool CheckIfFileExists(char *filepath);
 
 int countLines(const char* filepath);
 
-int deleteLine(const char* filepath, int lineToDelete);
+int deleteLine(char* filepath, int lineToDelete);
 
 int initBook(char* filepath);
 

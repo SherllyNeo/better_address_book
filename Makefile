@@ -1,4 +1,4 @@
-CFLAGS = -g3 -O -Wall -W -pedantic -std=c99 -lncurses
+CFLAGS = -g3 -O -Wall -W -pedantic -lncurses
 
 babook src/main.c: src/contacts.h src/contacts.c src/file.h src/file.h src/shared.h
 	mkdir -p bin

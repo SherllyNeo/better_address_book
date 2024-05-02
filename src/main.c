@@ -29,15 +29,20 @@ char banner[] = " \
 |____/ \\___/ \\___/|_|\\_\\ \n ";
 
 char help[] = "-a or --add to add a new contact \n \
-               -r or --remove to remove a contact\n \
-               -s or --show to remove a contact\n \
+               -r or --remove to remove a contact by index\n \
+               -s or --show to show all contacts\n \
                -f or --find to find potential matches\n \
+               --field to specify fields to show when using -f\n \
+               -i or --inspect to inspect a specific contact by index\n \
+               -e or --edit to edit a specific contact by index\n \
                ";
 
 typedef enum {
     Add,
     Remove,
     Show,
+    Inspect,
+    Edit,
     None
 } Mode;
 
@@ -76,6 +81,8 @@ int main(int argc, char *argv[])
         char* address = NULL;
         char* notes = NULL;
         char* target = NULL;
+        char* field = NULL;
+        int index = 0;
 
         Mode mode = None;
 
@@ -90,12 +97,24 @@ int main(int argc, char *argv[])
             }
             else if (!strcmp("-r",arg) || !strcmp("--remove",arg)) {
                 mode = Remove;
+                index = atoi(argv[++i]);
             }
             else if (!strcmp("-s",arg) || !strcmp("--show",arg)) {
                 mode = Show;
             }
             else if (!strcmp("-f",arg) || !strcmp("--find",arg)) {
                 target = argv[++i];
+            }
+            else if (!strcmp("-i",arg) || !strcmp("--inspect",arg)) {
+                mode = Inspect;
+                index = atoi(argv[++i]);
+            }
+            else if (!strcmp("-e",arg) || !strcmp("--edit",arg)) {
+                mode = Edit;
+                index = atoi(argv[++i]);
+            }
+            else if (!strcmp("--field",arg)) {
+                field = argv[++i];
             }
         }
 
@@ -111,12 +130,11 @@ int main(int argc, char *argv[])
                     fprintf(stderr, "Failed to init new contact\n");
                     exit(ERR_CONTACTS);
                 }
-                return 1;
+                return 0;
                 break;
             case Remove: 
                 ;
-                Contact contact = { 0 };
-                deleteContact(contact,address_book_path);
+                deleteContact(index,address_book_path);
                 break;
             case Show: 
                 ;
@@ -128,6 +146,15 @@ int main(int argc, char *argv[])
                 for (int i = 0; i<amount_of_contacts; i++) {
                     printContact(contacts[i]);
                 }
+                break;
+            case Edit:
+                ;
+                editContact(index, address_book_path);
+                break;
+            case Inspect:
+                ;
+                int result_inspect = inspectContact(index, address_book_path);
+                return result_inspect;
                 break;
             case None: 
                 break;
@@ -146,12 +173,46 @@ int main(int argc, char *argv[])
                 printf("Found %d potential matches\n",number_of_matches);
                 for (int i = 0; i<number_of_matches; i++) {
                     Contact* match = potentialMatches[i];
-                    if (i == number_of_matches - 1) {
-                        printf("%s %s <%s> - %d",match->first_name,match->last_name,match->email,match->index);
-                    }
-                    else {
-                        printf("%s %s <%s> - %d, ",match->first_name,match->last_name,match->email,match->index);
-                    }
+                        bool any = false;
+                        if (field == NULL) {
+                            printf("%s %s <%s> - %d",match->first_name,match->last_name,match->email,match->index);
+                            any = true;
+                        }   
+                        else {
+                            if (strstr(field,"first_name") != NULL) {
+                                printf("%s ",match->first_name);
+                                any = true;
+                            }
+                            if (strstr(field,"last_name") != NULL) {
+                                printf("%s ",match->last_name);
+                                any = true;
+                            }
+                            if (strstr(field,"email") != NULL) {
+                                printf("%s ",match->email);
+                                any = true;
+                            }
+                            if (strstr(field,"index") != NULL) {
+                                printf("%d ",match->index);
+                                any = true;
+                            }
+                            if (strstr(field,"address") != NULL) {
+                                printf("%s ",match->address);
+                                any = true;
+                            }
+                            if (strstr(field,"notes") != NULL) {
+                                printf("%s ",match->notes);
+                                any = true;
+                            }
+                            if (!any) {
+                                printf("Unknown fields in %s, using default: ",field);
+                                printf("%s %s <%s> - %d",match->first_name,match->last_name,match->email,match->index);
+                            }
+                        }
+
+
+                        if (i != number_of_matches - 1) {
+                            printf(", ");
+                        }
                 }
                 printf("\n");
                 free(potentialMatches);
