@@ -80,6 +80,13 @@ int readContacts(Contact contacts[], char* filepath) {
 
     int count = 0;
 
+    if (filepath == NULL) {
+        printf("file path is null\n");
+    }
+   // else {
+   //     printf("file path is %s\n",filepath);
+   // }
+
     //bool header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
 
    // DSV parsed_csv = dsvParseFile(filepath, ',');

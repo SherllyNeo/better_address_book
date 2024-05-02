@@ -10,7 +10,7 @@
 #include "contacts.h"
 #include "tui.h"
 
-#define PATH_SIZE 100
+#define PATH_SIZE 500
 #define PROPERTIES_AMOUNT 4
 #define PROPERTIES_AMOUNT 4
 #define ERR_CONTACTS 1
