@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
     if (!exists) {
         initBook(address_book_path);
     }
+
     if (argc > 1) {
         printf("%s\n",banner);
 
@@ -153,6 +154,7 @@ int main(int argc, char *argv[])
                 break;
             case Inspect:
                 ;
+                printf("%d %s\n",index,address_book_path);
                 int result_inspect = inspectContact(index, address_book_path);
                 return result_inspect;
                 break;
