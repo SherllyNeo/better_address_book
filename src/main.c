@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
         fprintf(stderr,"[-] Did not find ADDRESS_BOOK_PATH, defaulting to ~/.local/share/babook.csv\n");
         address_book_path_dirty = "~/.local/share/babook.csv";
     }
-    char address_book_path[PATH_SIZE];
+    char address_book_path[PATH_SIZE] = { 0 };
 
     /* expand so ~/.config exands to /home/user/config */
     wordexp_t exp_result;
