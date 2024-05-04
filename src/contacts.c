@@ -83,163 +83,141 @@ int readContacts(Contact contacts[], char* filepath) {
     if (filepath == NULL) {
         printf("file path is null\n");
     }
-   // else {
-   //     printf("file path is %s\n",filepath);
-   // }
+    else {
+        printf("file path is %s\n",filepath);
+    }
 
-    //bool header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
+    bool header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
 
-   // DSV parsed_csv = dsvParseFile(filepath, ',');
-   // if (!parsed_csv.valid) {
-   //     fprintf(stderr, "unable to parse csv\n");
-   //     return 0;
-   // }
+    DSV parsed_csv = dsvParseFile(filepath, ',');
+    if (!parsed_csv.valid) {
+        fprintf(stderr, "unable to parse csv\n");
+        return 0;
+    }
 
-   // if (header) {
-   //     int delete_failed = dsvRemoveRow(&parsed_csv, 0);
-   //     if (delete_failed) {
-   //         fprintf(stderr, "unable to delete header\n");
-   //         return 0;
-   //     }
-   // }
+    if (header) {
+        int delete_failed = dsvRemoveRow(&parsed_csv, 0);
+        if (delete_failed) {
+            fprintf(stderr, "unable to delete header\n");
+            return 0;
+        }
+    }
 
-   // for (size_t row = 0; row<parsed_csv.rows;row++) {
-   //     strncpy(contacts[row].first_name,parsed_csv.content[row][0],FirstName);
-   //     strncpy(contacts[row].last_name,parsed_csv.content[row][1],LastName);
-   //     strncpy(contacts[row].email,parsed_csv.content[row][2],Email);
-   //     strncpy(contacts[row].phone,parsed_csv.content[row][3],Phone);
-   //     strncpy(contacts[row].address,parsed_csv.content[row][4],Address);
-   //     strncpy(contacts[row].notes,parsed_csv.content[row][5],Notes);
-   //     contacts[row].index = row;
-   // }
+    for (size_t row = 0; row<parsed_csv.rows;row++) {
+        strncpy(contacts[row].first_name,parsed_csv.content[row][0],FirstName);
+        strncpy(contacts[row].last_name,parsed_csv.content[row][1],LastName);
+        strncpy(contacts[row].email,parsed_csv.content[row][2],Email);
+        strncpy(contacts[row].phone,parsed_csv.content[row][3],Phone);
+        strncpy(contacts[row].address,parsed_csv.content[row][4],Address);
+        strncpy(contacts[row].notes,parsed_csv.content[row][5],Notes);
+        contacts[row].index = row;
+    }
 
-   // count = parsed_csv.rows;
+    count = parsed_csv.rows;
 
-   // int freed = dsvFreeDSV(parsed_csv);
-   // if (freed) {
-   //     fprintf(stderr, "unable to free parsed csv\n");
-   // }
+    int freed = dsvFreeDSV(parsed_csv);
+    if (freed) {
+        fprintf(stderr, "unable to free parsed csv\n");
+    }
 
 
     return count; 
 }
 
-int editContact(int index,char* filepath) {
-    /* find contact at that index - read em and get */
-    Contact contacts[MAX_CONTACTS] = { 0 };
-    int count = readContacts(contacts, filepath);
-
-    if (count <= 0) {
-        fprintf(stderr,"unable to read contacts\n");
-    }
-
-    if (index < 0 && index > count) {
-        fprintf(stderr,"unable edit contact as index %d, does not exist\n",index);
-    }
-
-    Contact chosen_contact = contacts[count];
+int editContact(Contact contact,char* filepath) {
 
     /* find what needs to be edited */
     printf("Enter field to be edited:\n");
-    char user_input[256];
+    char user_input[256] = { 0 };
     char* field = NULL;
 
     if(fgets(user_input, sizeof(user_input), stdin) != NULL)
     {
-        if (!strcmp(user_input,"first_name")) {
+        if (!strcmp(user_input,"first_name\n")) {
             field = "first_name";
         }
-        else if (!strcmp(user_input,"last_name")) {
+        else if (!strcmp(user_input,"last_name\n")) {
             field = "last_name";
         }
-        else if (!strcmp(user_input,"email")) {
+        else if (!strcmp(user_input,"email\n")) {
             field = "email";
         }
-        else if (!strcmp(user_input,"phone")) {
+        else if (!strcmp(user_input,"phone\n")) {
             field = "phone";
         }
-        else if (!strcmp(user_input,"address")) {
+        else if (!strcmp(user_input,"address\n")) {
             field = "address";
         }
-        else if (!strcmp(user_input,"notes")) {
+        else if (!strcmp(user_input,"notes\n")) {
             field = "notes";
         }
         else {
-            fprintf(stderr,"Field to be edited must be on of first_name, last_name, email, phone, address or notes\n");
+            fprintf(stderr,"Field to be edited must be on of first_name, last_name, email, phone, address or notes\nYou typed: %s\n",user_input);
+            return 1;
         }
 
     }
 
 
     char user_content[LINESIZE*3] = { 0 };
+    printf("chosen field: %s\n",field);
     /* get input */
     if (!strcmp(field,"first_name")) {
-        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,chosen_contact.first_name);
+        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.first_name);
         if(fgets(user_content, sizeof(user_content), stdin) != NULL) {
-            strncpy(chosen_contact.first_name,user_content,FirstName);
+            user_content[strcspn(user_content, "\n")] = '\0';
+            strncpy(contact.first_name,user_content,FirstName);
         }
     }
     else if (!strcmp(field,"last_name")) {
-        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,chosen_contact.last_name);
+        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.last_name);
         if(fgets(user_content, sizeof(user_content), stdin) != NULL) {
-            strncpy(chosen_contact.last_name,user_content,LastName);
+            user_content[strcspn(user_content, "\n")] = '\0';
+            strncpy(contact.last_name,user_content,LastName);
         }
     }
     else if (!strcmp(field,"email")) {
-        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,chosen_contact.email);
+        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.email);
         if(fgets(user_content, sizeof(user_content), stdin) != NULL) {
-            strncpy(chosen_contact.email,user_content,Email);
+            user_content[strcspn(user_content, "\n")] = '\0';
+            strncpy(contact.email,user_content,Email);
         }
     }
     else if (!strcmp(field,"phone")) {
-        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,chosen_contact.phone);
+        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.phone);
         if(fgets(user_content, sizeof(user_content), stdin) != NULL) {
-            strncpy(chosen_contact.phone,user_content,Phone);
+            user_content[strcspn(user_content, "\n")] = '\0';
+            strncpy(contact.phone,user_content,Phone);
         }
     }
     else if (!strcmp(field,"address")) {
-        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,chosen_contact.address);
+        printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.address);
         if(fgets(user_content, sizeof(user_content), stdin) != NULL) {
-            strncpy(chosen_contact.address,user_content,Address);
+            user_content[strcspn(user_content, "\n")] = '\0';
+            strncpy(contact.address,user_content,Address);
         }
     }
     else if (!strcmp(field,"notes")) {
-        printf("You have chosen %s with data %s\nPlease enter what you would like this to be updated to:\n",field,chosen_contact.notes);
+        printf("You have chosen %s with data %s\nPlease enter what you would like this to be updated to:\n",field,contact.notes);
         if(fgets(user_content, sizeof(user_content), stdin) != NULL) {
-            strncpy(chosen_contact.notes,user_content,Notes);
+            user_content[strcspn(user_content, "\n")] = '\0';
+            strncpy(contact.notes,user_content,Notes);
         }
     }
     else {
         /* impossible */
         fprintf(stderr,"Field to be edited must be on of first_name, last_name, email, phone, address or notes\n");
-    }
+        return 1;
+    } 
+
     
-    return writeLine(chosen_contact, filepath,chosen_contact.index);
+    printf("changing to %s\n",user_content);
+    
+    return writeLine(contact, filepath,contact.index);
 }
 
-int inspectContact(int index,char* filepath) {
-
-    char* filepath_tmp = strdup(filepath);
-    printf("DEBUG 1\n");
-    /* find contact at that index - read em and get */
-    Contact contacts[MAX_CONTACTS] = { 0 };
-    int count = readContacts(contacts, filepath_tmp);
-
-    if (count <= 0) {
-        fprintf(stderr,"unable to read contacts\n");
-        return 1;
-    }
-
-    if (index < 0 && index > count) {
-        fprintf(stderr,"unable edit contact as index %d, does not exist\n",index);
-        return 1;
-    }
-
-    Contact chosen_contact = contacts[count];
-
-    printContact(chosen_contact);
-
-    free(filepath_tmp);
+int inspectContact(Contact contact,char* filepath) {
+    printContact(contact);
     return 0;
 }
 

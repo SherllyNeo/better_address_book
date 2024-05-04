@@ -25,23 +25,27 @@ int writeLine(Contact contact,char* filepath, int line) {
     row[3] = strdup(contact.phone);
     row[4] = strdup(contact.address);
     row[5] = strdup(contact.notes);
+    row[6] = NULL;
 
     DSV parsed_csv = dsvParseFile(filepath, ',');
     if (!parsed_csv.valid) {
         fprintf(stderr,"Unable to parse csv file to write line\n");
+        return ERR_FILE;
     }
     int insert_failed = dsvInsertRow(&parsed_csv, row, line);
     if (insert_failed) {
         fprintf(stderr,"unable to insert row\n");
+        return ERR_FILE;
     }
     int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
     if (write_failed) {
         fprintf(stderr,"unable to write updated csv\n");
+        return ERR_FILE;
     }
 
     dsvFreeDSV(parsed_csv);
 
-    return 0; // Success
+    return 0; 
 }
 
 int appendLine(Contact contact,char* filepath) {

@@ -1,10 +1,11 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <wordexp.h>
 #include <stdbool.h>
 #include <ncurses.h>
 
+#include "dsvParser.h"
 #include "shared.h"
 #include "file.h"
 #include "contacts.h"
@@ -14,6 +15,7 @@
 #define PROPERTIES_AMOUNT 4
 #define PROPERTIES_AMOUNT 4
 #define ERR_CONTACTS 1
+#define ERR_ARGS 3
 
 
 char banner[] = " \
@@ -38,19 +40,20 @@ char help[] = "-a or --add to add a new contact \n \
                ";
 
 typedef enum {
+    None,
     Add,
     Remove,
     Show,
+    Find,
     Inspect,
-    Edit,
-    None
+    Edit
 } Mode;
-
 
 
 int main(int argc, char *argv[])
 {
     char* address_book_path_dirty = getenv("ADDRESS_BOOK_PATH");
+
     if (!address_book_path_dirty) {
         fprintf(stderr,"[-] Did not find ADDRESS_BOOK_PATH, defaulting to ~/.local/share/babook.csv\n");
         address_book_path_dirty = "~/.local/share/babook.csv";
@@ -70,169 +73,99 @@ int main(int argc, char *argv[])
         initBook(address_book_path);
     }
 
-    if (argc > 1) {
-        printf("%s\n",banner);
+    printf("%s\n",banner);
 
 
 
-        char* first_name = NULL;
-        char* last_name = NULL;
-        char* email = NULL;
-        char* phone = NULL;
-        char* address = NULL;
-        char* notes = NULL;
-        char* target = NULL;
-        char* field = NULL;
-        int index = 0;
-
-        Mode mode = None;
-
-        for (int i = 0; i<argc; i++) {
-            char* arg = argv[i];
-            if (!strcmp("-h",arg) || !strcmp("--help",arg)) {
-                printf("%s\n",help);
-                return EXIT_SUCCESS;
-            }
-            else if (!strcmp("-a",arg) || !strcmp("--add",arg)) {
-                mode = Add;
-            }
-            else if (!strcmp("-r",arg) || !strcmp("--remove",arg)) {
-                mode = Remove;
-                index = atoi(argv[++i]);
-            }
-            else if (!strcmp("-s",arg) || !strcmp("--show",arg)) {
-                mode = Show;
-            }
-            else if (!strcmp("-f",arg) || !strcmp("--find",arg)) {
-                target = argv[++i];
-            }
-            else if (!strcmp("-i",arg) || !strcmp("--inspect",arg)) {
-                mode = Inspect;
-                index = atoi(argv[++i]);
-            }
-            else if (!strcmp("-e",arg) || !strcmp("--edit",arg)) {
-                mode = Edit;
-                index = atoi(argv[++i]);
-            }
-            else if (!strcmp("--field",arg)) {
-                field = argv[++i];
-            }
-        }
-
-        switch (mode) {
-            case Add: 
-                ;
-                Contact new_contact = { 0 };
-                int result = initContact(&new_contact);
-                if (!result) {
-                    addNewContact(new_contact, address_book_path);
-                }
-                else {
-                    fprintf(stderr, "Failed to init new contact\n");
-                    exit(ERR_CONTACTS);
-                }
-                return 0;
-                break;
-            case Remove: 
-                ;
-                deleteContact(index,address_book_path);
-                break;
-            case Show: 
-                ;
-                Contact contacts[MAX_CONTACTS] = { 0 };
-                int amount_of_contacts = readContacts(contacts, address_book_path);
-                if (amount_of_contacts == 0) {
-                    fprintf(stderr,"[-] unable to parse any values from %s\n",address_book_path);
-                }
-                for (int i = 0; i<amount_of_contacts; i++) {
-                    printContact(contacts[i]);
-                }
-                break;
-            case Edit:
-                ;
-                editContact(index, address_book_path);
-                break;
-            case Inspect:
-                ;
-                printf("%d %s\n",index,address_book_path);
-                int result_inspect = inspectContact(index, address_book_path);
-                return result_inspect;
-                break;
-            case None: 
-                break;
-
-        }
-
-        if (target) {
-            Contact contacts[MAX_CONTACTS] = { 0 };
-            int amount_of_contacts = readContacts(contacts, address_book_path);
-            if (amount_of_contacts == 0) {
-                fprintf(stderr,"[-] unable to parse any values from %s\n",address_book_path);
-            }
-            int number_of_matches = 0;
-            Contact** potentialMatches = searchContacts(contacts, amount_of_contacts, target, &number_of_matches);
-            if (potentialMatches) {
-                printf("Found %d potential matches\n",number_of_matches);
-                for (int i = 0; i<number_of_matches; i++) {
-                    Contact* match = potentialMatches[i];
-                        bool any = false;
-                        if (field == NULL) {
-                            printf("%s %s <%s> - %d",match->first_name,match->last_name,match->email,match->index);
-                            any = true;
-                        }   
-                        else {
-                            if (strstr(field,"first_name") != NULL) {
-                                printf("%s ",match->first_name);
-                                any = true;
-                            }
-                            if (strstr(field,"last_name") != NULL) {
-                                printf("%s ",match->last_name);
-                                any = true;
-                            }
-                            if (strstr(field,"email") != NULL) {
-                                printf("%s ",match->email);
-                                any = true;
-                            }
-                            if (strstr(field,"index") != NULL) {
-                                printf("%d ",match->index);
-                                any = true;
-                            }
-                            if (strstr(field,"address") != NULL) {
-                                printf("%s ",match->address);
-                                any = true;
-                            }
-                            if (strstr(field,"notes") != NULL) {
-                                printf("%s ",match->notes);
-                                any = true;
-                            }
-                            if (!any) {
-                                printf("Unknown fields in %s, using default: ",field);
-                                printf("%s %s <%s> - %d",match->first_name,match->last_name,match->email,match->index);
-                            }
-                        }
-
-
-                        if (i != number_of_matches - 1) {
-                            printf(", ");
-                        }
-                }
-                printf("\n");
-                free(potentialMatches);
-            }
-        }
-    }
-
-
+    char* target = NULL;
+    char* field = NULL;
+    int index = -1;
+    Contact chosen_contact;
     Contact contacts[MAX_CONTACTS] = { 0 };
-    int amount_of_contacts = readContacts(contacts, address_book_path);
-    if (amount_of_contacts == 0) {
-        fprintf(stderr,"[-] unable to parse any values from %s\n",address_book_path);
-        exit(ERR_CONTACTS);
-    }
-    if (argc <= 1) {
-        display_contacts(contacts, amount_of_contacts, NULL);
+    Mode mode = None;
+
+
+    for (int i = 0; i<argc; i++) {
+        char* arg = argv[i];
+        if (!strcmp("-h",arg) || !strcmp("--help",arg)) {
+            printf("%s\n",help);
+            return EXIT_SUCCESS;
+        }
+        else if (!strcmp("-a",arg) || !strcmp("--add",arg)) {
+            mode = Add;
+        }
+        else if (!strcmp("-r",arg) || !strcmp("--remove",arg)) {
+            index = atoi(argv[++i]);
+            mode = Remove;
+        }
+        else if (!strcmp("-s",arg) || !strcmp("--show",arg)) {
+            mode = Show;
+        }
+        else if (!strcmp("-f",arg) || !strcmp("--find",arg)) {
+            target = argv[++i];
+            mode = Find;
+        }
+        else if (!strcmp("-i",arg) || !strcmp("--inspect",arg)) {
+            index = atoi(argv[++i]);
+            mode = Inspect;
+        }
+        else if (!strcmp("-e",arg) || !strcmp("--edit",arg)) {
+            index = atoi(argv[++i]);
+            mode = Edit;
+        }
+        else if (!strcmp("--field",arg)) {
+            field = argv[++i];
+        }
     }
 
+    /* find contact at that index - read em and get */
+    int count = readContacts(contacts, address_book_path);
+
+    if (count <= 0) {
+        fprintf(stderr,"unable to read contacts\n");
+    }
+
+    if (index != -1) {
+        if (index < 0 || index > count) {
+            fprintf(stderr,"contact at index %d, does not exist\nBounds are 0 to %d\n",index,count);
+            return ERR_ARGS;
+        }
+        chosen_contact = contacts[index];
+    }
+
+    if (mode == Show) {
+        for (int i = 0; i<count; i++) {
+            printContact(contacts[i]);
+        }
+    }
+    else if (mode == Inspect ) {
+        if (index != -1) {
+            printContact(chosen_contact);
+        }   
+        else {
+            fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3");
+            return ERR_ARGS;
+        }
+    }
+    else if (mode == Edit ) {
+        if (index != -1) {
+            printf("editing...\n");
+            printContact(chosen_contact);
+            int unable_to_edit = editContact(chosen_contact, address_book_path);
+            if (unable_to_edit) {
+                fprintf(stderr,"Unable to edit contact\n");
+                return ERR_FILE;
+            }
+            else {
+                printf("edited contact at index: %d\n",index);
+                return 0;
+            }
+        }   
+        else {
+            fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3");
+            return ERR_ARGS;
+        }
+    }
 
 
     return EXIT_SUCCESS;

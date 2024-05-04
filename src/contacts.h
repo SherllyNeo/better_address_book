@@ -10,9 +10,9 @@ int deleteContact(int index, char* filepath);
 
 int addNewContact(Contact contact,char* filepath);
 
-int editContact(int index,char* filepath);
+int editContact(Contact contact,char* filepath);
 
-int inspectContact(int index,char* filepath);
+int inspectContact(Contact contact,char* filepath);
 
 void printContact(Contact contact);
 
