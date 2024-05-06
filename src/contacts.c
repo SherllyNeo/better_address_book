@@ -76,6 +76,33 @@ void printContact(Contact contact) {
     printf("Notes: %s\n\n", contact.notes);
 }
 
+int makeTemporaryCopy(char* sourcePath, char* tempPath) {
+    FILE *sourceFile = fopen(sourcePath, "r");
+    if (sourceFile == NULL) {
+        printf("Error opening source file.\n");
+        return 1;
+    }
+
+    // Open the temporary file for writing
+    FILE *tempFile = fopen(tempPath, "w");
+    if (tempFile == NULL) {
+        printf("Error creating temporary file.\n");
+        fclose(sourceFile);
+        return 1;
+    }
+
+    char buffer[LINESIZE*3];
+
+    while (fgets(buffer, sizeof(buffer), sourceFile) != NULL) {
+        fputs(buffer, tempFile);
+    }
+
+    fclose(sourceFile);
+    fclose(tempFile);
+
+    return 0;
+}
+
 int readContacts(Contact contacts[], char* filepath) {
 
     int count = 0;
@@ -87,7 +114,7 @@ int readContacts(Contact contacts[], char* filepath) {
         printf("file path is %s\n",filepath);
     }
 
-    bool header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
+    int header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
 
     DSV parsed_csv = dsvParseFile(filepath, ',');
     if (!parsed_csv.valid) {
@@ -160,7 +187,7 @@ int editContact(Contact contact,char* filepath) {
 
 
     char user_content[LINESIZE*3] = { 0 };
-    printf("chosen field: %s\n",field);
+    printf("[+] chosen field: %s\n",field);
     /* get input */
     if (!strcmp(field,"first_name")) {
         printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.first_name);
@@ -212,8 +239,27 @@ int editContact(Contact contact,char* filepath) {
 
     
     printf("changing to %s\n",user_content);
-    
-    return writeLine(contact, filepath,contact.index);
+
+
+    int write_failed = writeLine(contact, filepath,contact.index + 2);
+    if (write_failed) {
+        fprintf(stderr,"Failed to write new contact\n");
+        return 1;
+    }
+    else {
+        printf("[+] added new data\n");
+    }
+
+    int delete_failed = deleteLine(filepath, contact.index + 1);
+    if (delete_failed) {
+        fprintf(stderr,"Failed to edit contact as unable to delete old line\n");
+        return 1;
+    }
+    else {
+        printf("[+] deleted old data\n");
+    }
+
+    return 0;
 }
 
 int inspectContact(Contact contact,char* filepath) {
