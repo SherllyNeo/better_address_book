@@ -22,10 +22,8 @@ char* caseInsensitiveStrStr(char* string, char* substring) {
         substring_copy[i] = toupper(substring_copy[i]);
     
     }
-    printf("%s in %s?\n",substring_copy,string_copy);
 
     return strstr(string_copy,substring_copy);
-
 }
 
 Contact** searchContacts(Contact contacts[], int amount_of_contacts, char* search_string, int* number_of_matches) {

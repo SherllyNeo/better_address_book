@@ -185,6 +185,41 @@ int main(int argc, char *argv[])
             return ERR_ARGS;
         }
     }
+    else if (mode == Add ) {
+        Contact contact = {NULL, 0, 0, false};
+        int failed_to_init_contact = initContact(&contact);
+        if (failed_to_init_contact) {
+            fprintf(stderr,"Unable to add contact\n");
+            return ERR_FILE;
+        }
+
+
+        int unable_to_add = addNewContact(contact,address_book_path);
+        if (unable_to_add) {
+            fprintf(stderr,"Unable to add contact\n");
+            return ERR_FILE;
+        }
+        else {
+            printf("added contact\n");
+            return 0;
+        }
+    }
+    else if (mode == Find ) {
+        int number_of_matches = 0;
+        Contact** matches = searchContacts(contacts, count, target, &number_of_matches);
+
+        if (number_of_matches <= 0) {
+            printf("[-] No matches for %s\n",target);
+        }
+        else {
+            printf("[+] found %d matches\n",number_of_matches);
+        }
+        for (int i = 0; i < number_of_matches; i++) {
+            printContact(*matches[i]);
+        }
+        free(matches);
+        return 0;
+    }
 
 
     return EXIT_SUCCESS;
