@@ -267,6 +267,7 @@ int inspectContact(Contact contact,char* filepath) {
     return 0;
 }
 
+
 int initContact(Contact* contact) {
     printf("Enter first name: ");
     contact->first_name[0] = '\0';

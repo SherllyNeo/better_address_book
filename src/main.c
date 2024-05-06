@@ -162,7 +162,26 @@ int main(int argc, char *argv[])
             }
         }   
         else {
-            fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3");
+            fprintf(stderr,"Must supply index to inspect, example:\nbabook -e 3");
+            return ERR_ARGS;
+        }
+    }
+    else if (mode == Remove ) {
+        if (index != -1) {
+            printf("removing...\n");
+            printContact(chosen_contact);
+            int unable_to_remove = deleteContact(index, address_book_path);
+            if (unable_to_remove) {
+                fprintf(stderr,"Unable to remove contact\n");
+                return ERR_FILE;
+            }
+            else {
+                printf("removed contact at index: %d\n",index);
+                return 0;
+            }
+        }   
+        else {
+            fprintf(stderr,"Must supply index to inspect, example:\nbabook -r 3");
             return ERR_ARGS;
         }
     }
