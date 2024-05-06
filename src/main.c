@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     Contact contacts[MAX_CONTACTS] = { 0 };
     Mode mode = None;
 
-    if (argc < 2) {
+    if (argc > 1) {
 
         for (int i = 0; i<argc; i++) {
             char* arg = argv[i];
