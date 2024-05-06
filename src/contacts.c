@@ -55,7 +55,7 @@ Contact** searchContacts(Contact contacts[], int amount_of_contacts, char* searc
 }
 
 int deleteContact(int index, char* filepath) {
-    return deleteLine(filepath,index);
+    return deleteLine(filepath,index + 1);
 }
 
 
