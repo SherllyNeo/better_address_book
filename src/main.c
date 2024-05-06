@@ -84,141 +84,147 @@ int main(int argc, char *argv[])
     Contact contacts[MAX_CONTACTS] = { 0 };
     Mode mode = None;
 
+    if (argc < 2) {
 
-    for (int i = 0; i<argc; i++) {
-        char* arg = argv[i];
-        if (!strcmp("-h",arg) || !strcmp("--help",arg)) {
-            printf("%s\n",help);
-            return EXIT_SUCCESS;
+        for (int i = 0; i<argc; i++) {
+            char* arg = argv[i];
+            if (!strcmp("-h",arg) || !strcmp("--help",arg)) {
+                printf("%s\n",help);
+                return EXIT_SUCCESS;
+            }
+            else if (!strcmp("-a",arg) || !strcmp("--add",arg)) {
+                mode = Add;
+            }
+            else if (!strcmp("-r",arg) || !strcmp("--remove",arg)) {
+                index = atoi(argv[++i]);
+                mode = Remove;
+            }
+            else if (!strcmp("-s",arg) || !strcmp("--show",arg)) {
+                mode = Show;
+            }
+            else if (!strcmp("-f",arg) || !strcmp("--find",arg)) {
+                target = argv[++i];
+                mode = Find;
+            }
+            else if (!strcmp("-i",arg) || !strcmp("--inspect",arg)) {
+                index = atoi(argv[++i]);
+                mode = Inspect;
+            }
+            else if (!strcmp("-e",arg) || !strcmp("--edit",arg)) {
+                index = atoi(argv[++i]);
+                mode = Edit;
+            }
+            else if (!strcmp("--field",arg)) {
+                field = argv[++i];
+                mode = Edit;
+            }
         }
-        else if (!strcmp("-a",arg) || !strcmp("--add",arg)) {
-            mode = Add;
-        }
-        else if (!strcmp("-r",arg) || !strcmp("--remove",arg)) {
-            index = atoi(argv[++i]);
-            mode = Remove;
-        }
-        else if (!strcmp("-s",arg) || !strcmp("--show",arg)) {
-            mode = Show;
-        }
-        else if (!strcmp("-f",arg) || !strcmp("--find",arg)) {
-            target = argv[++i];
-            mode = Find;
-        }
-        else if (!strcmp("-i",arg) || !strcmp("--inspect",arg)) {
-            index = atoi(argv[++i]);
-            mode = Inspect;
-        }
-        else if (!strcmp("-e",arg) || !strcmp("--edit",arg)) {
-            index = atoi(argv[++i]);
-            mode = Edit;
-        }
-        else if (!strcmp("--field",arg)) {
-            field = argv[++i];
-        }
-    }
 
-    /* find contact at that index - read em and get */
-    int count = readContacts(contacts, address_book_path);
+        /* find contact at that index - read em and get */
+        int count = readContacts(contacts, address_book_path);
 
-    if (count <= 0) {
-        fprintf(stderr,"unable to read contacts\n");
-    }
-
-    if (index != -1) {
-        if (index < 0 || index > count) {
-            fprintf(stderr,"contact at index %d, does not exist\nBounds are 0 to %d\n",index,count);
-            return ERR_ARGS;
+        if (count <= 0) {
+            fprintf(stderr,"unable to read contacts\n");
         }
-        chosen_contact = contacts[index];
-    }
 
-    if (mode == Show) {
-        for (int i = 0; i<count; i++) {
-            printContact(contacts[i]);
-        }
-    }
-    else if (mode == Inspect ) {
         if (index != -1) {
-            printContact(chosen_contact);
-        }   
-        else {
-            fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3");
-            return ERR_ARGS;
+            if (index < 0 || index > count) {
+                fprintf(stderr,"contact at index %d, does not exist\nBounds are 0 to %d\n",index,count);
+                return ERR_ARGS;
+            }
+            chosen_contact = contacts[index];
         }
-    }
-    else if (mode == Edit ) {
-        if (index != -1) {
-            printf("editing...\n");
-            printContact(chosen_contact);
-            int unable_to_edit = editContact(chosen_contact, address_book_path);
-            if (unable_to_edit) {
-                fprintf(stderr,"Unable to edit contact\n");
+
+        if (mode == Show) {
+            for (int i = 0; i<count; i++) {
+                printContact(contacts[i]);
+            }
+        }
+        else if (mode == Inspect ) {
+            if (index != -1) {
+                printContact(chosen_contact);
+            }   
+            else {
+                fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3");
+                return ERR_ARGS;
+            }
+        }
+        else if (mode == Edit ) {
+            if (index != -1) {
+                printf("editing...\n");
+                printContact(chosen_contact);
+                int unable_to_edit = editContact(chosen_contact, address_book_path);
+                if (unable_to_edit) {
+                    fprintf(stderr,"Unable to edit contact\n");
+                    return ERR_FILE;
+                }
+                else {
+                    printf("edited contact at index: %d\n",index);
+                    return 0;
+                }
+            }   
+            else {
+                fprintf(stderr,"Must supply index to inspect, example:\nbabook -e 3");
+                return ERR_ARGS;
+            }
+        }
+        else if (mode == Remove ) {
+            if (index != -1) {
+                printf("removing...\n");
+                printContact(chosen_contact);
+                int unable_to_remove = deleteContact(index, address_book_path);
+                if (unable_to_remove) {
+                    fprintf(stderr,"Unable to remove contact\n");
+                    return ERR_FILE;
+                }
+                else {
+                    printf("removed contact at index: %d\n",index);
+                    return 0;
+                }
+            }   
+            else {
+                fprintf(stderr,"Must supply index to inspect, example:\nbabook -r 3");
+                return ERR_ARGS;
+            }
+        }
+        else if (mode == Add ) {
+            Contact contact = { 0 };
+            int failed_to_init_contact = initContact(&contact);
+            if (failed_to_init_contact) {
+                fprintf(stderr,"Unable to add contact\n");
+                return ERR_FILE;
+            }
+
+
+            int unable_to_add = addNewContact(contact,address_book_path);
+            if (unable_to_add) {
+                fprintf(stderr,"Unable to add contact\n");
                 return ERR_FILE;
             }
             else {
-                printf("edited contact at index: %d\n",index);
+                printf("added contact\n");
                 return 0;
             }
-        }   
-        else {
-            fprintf(stderr,"Must supply index to inspect, example:\nbabook -e 3");
-            return ERR_ARGS;
         }
-    }
-    else if (mode == Remove ) {
-        if (index != -1) {
-            printf("removing...\n");
-            printContact(chosen_contact);
-            int unable_to_remove = deleteContact(index, address_book_path);
-            if (unable_to_remove) {
-                fprintf(stderr,"Unable to remove contact\n");
-                return ERR_FILE;
+        else if (mode == Find ) {
+            int number_of_matches = 0;
+            Contact** matches = searchContacts(contacts, count, target, &number_of_matches);
+
+            if (number_of_matches <= 0) {
+                printf("[-] No matches for %s\n",target);
             }
             else {
-                printf("removed contact at index: %d\n",index);
-                return 0;
+                printf("[+] found %d matches\n",number_of_matches);
             }
-        }   
-        else {
-            fprintf(stderr,"Must supply index to inspect, example:\nbabook -r 3");
-            return ERR_ARGS;
-        }
-    }
-    else if (mode == Add ) {
-        Contact contact = {NULL, 0, 0, false};
-        int failed_to_init_contact = initContact(&contact);
-        if (failed_to_init_contact) {
-            fprintf(stderr,"Unable to add contact\n");
-            return ERR_FILE;
-        }
-
-
-        int unable_to_add = addNewContact(contact,address_book_path);
-        if (unable_to_add) {
-            fprintf(stderr,"Unable to add contact\n");
-            return ERR_FILE;
-        }
-        else {
-            printf("added contact\n");
+            for (int i = 0; i < number_of_matches; i++) {
+                printContact(*matches[i]);
+                if (field) {
+                    printf("TODO: show just the relevant fields\n");
+                }
+            }
+            free(matches);
             return 0;
         }
-    }
-    else if (mode == Find ) {
-        int number_of_matches = 0;
-        Contact** matches = searchContacts(contacts, count, target, &number_of_matches);
-
-        if (number_of_matches <= 0) {
-            printf("[-] No matches for %s\n",target);
-        }
-        else {
-            printf("[+] found %d matches\n",number_of_matches);
-        }
-        for (int i = 0; i < number_of_matches; i++) {
-            printContact(*matches[i]);
-        }
-        free(matches);
-        return 0;
     }
 
 

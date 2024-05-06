@@ -15,12 +15,12 @@ char* caseInsensitiveStrStr(char* string, char* substring) {
     strncpy(string_copy,string,(strlen(string)+1)*sizeof(char));
     strncpy(substring_copy,substring,(strlen(substring)+1)*sizeof(char));
 
-    for (int i = 0; i<strlen(string_copy); i++) {
+    for (int i = 0; i<(int)strlen(string_copy); i++) {
         string_copy[i] = toupper(string_copy[i]);
     }
-    for (int i = 0; i<strlen(substring_copy); i++) {
+    for (int i = 0; i<(int)strlen(substring_copy); i++) {
         substring_copy[i] = toupper(substring_copy[i]);
-    
+
     }
 
     return strstr(string_copy,substring_copy);
@@ -58,7 +58,6 @@ int deleteContact(int index, char* filepath) {
 
 
 int addNewContact(Contact contact,char* filepath) {
-    int lines = countLines(filepath) + 1;
     return appendLine(contact, filepath);
 }
 
@@ -81,7 +80,6 @@ int makeTemporaryCopy(char* sourcePath, char* tempPath) {
         return 1;
     }
 
-    // Open the temporary file for writing
     FILE *tempFile = fopen(tempPath, "w");
     if (tempFile == NULL) {
         printf("Error creating temporary file.\n");
@@ -185,7 +183,6 @@ int editContact(Contact contact,char* filepath) {
 
 
     char user_content[LINESIZE*3] = { 0 };
-    printf("[+] chosen field: %s\n",field);
     /* get input */
     if (!strcmp(field,"first_name")) {
         printf("You have chosen %s with data %s, please enter what you would like this to be updated to:\n",field,contact.first_name);
@@ -235,7 +232,7 @@ int editContact(Contact contact,char* filepath) {
         return 1;
     } 
 
-    
+
     printf("changing to %s\n",user_content);
 
 
@@ -257,11 +254,6 @@ int editContact(Contact contact,char* filepath) {
         printf("[+] deleted old data\n");
     }
 
-    return 0;
-}
-
-int inspectContact(Contact contact,char* filepath) {
-    printContact(contact);
     return 0;
 }
 
