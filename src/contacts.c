@@ -126,6 +126,11 @@ int readContacts(Contact contacts[], char* filepath) {
         }
     }
 
+    if (parsed_csv.rows >= MAX_CONTACTS) {
+            fprintf(stderr, "file too big to read\n");
+            exit(EXIT_SUCCESS);
+    }
+
     for (size_t row = 0; row<parsed_csv.rows;row++) {
         strncpy(contacts[row].first_name,parsed_csv.content[row][0],FirstName);
         strncpy(contacts[row].last_name,parsed_csv.content[row][1],LastName);

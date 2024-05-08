@@ -189,15 +189,39 @@ int editLine(Contact contact,char* filepath, int line) {
         }
 
 
+    /* write */
 
-    int write_failed = writeLine(contact, filepath,line + 2);
+    char** row = (char**)malloc(sizeof(char*) * 6);
+    row[0] = strdup(contact.first_name);
+    row[1] = strdup(contact.last_name);
+    row[2] = strdup(contact.email);
+    row[3] = strdup(contact.phone);
+    row[4] = strdup(contact.address);
+    row[5] = strdup(contact.notes);
+    row[6] = NULL;
+
+
+    DSV parsed_csv = dsvParseFile(filepath, ',');
+    if (!parsed_csv.valid) {
+        fprintf(stderr,"Unable to parse csv file to write line\n");
+        return ERR_FILE;
+    }
+
+    int insert_failed = dsvInsertRow(&parsed_csv, row, line+2);
+
+    if (insert_failed) {
+        fprintf(stderr,"unable to insert row\n");
+        return ERR_FILE;
+    }
+
+    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
     if (write_failed) {
-        fprintf(stderr,"Failed to write new contact\n");
-        return 1;
+        fprintf(stderr,"unable to write updated csv\n");
+        return ERR_FILE;
     }
-    else {
-        printf("[+] added new data\n");
-    }
+
+    printf("[+] added new data\n");
+    /* delete */
 
     int delete_failed = deleteLine(filepath, line + 1);
     if (delete_failed) {
@@ -207,6 +231,8 @@ int editLine(Contact contact,char* filepath, int line) {
     else {
         printf("[+] deleted old data\n");
     }
+
+    dsvFreeDSV(parsed_csv);
 
     return 0;
 }
