@@ -187,15 +187,13 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int start_contact = 0; // Index of the first contact to display
     int choice;
 
-    // Initialize ncurses
     initscr();
-    cbreak(); // Line buffering disabled
-    noecho(); // Don't echo user input
-    keypad(stdscr, TRUE); // Enable keypad for function keys
+    cbreak(); 
+    noecho(); 
+    keypad(stdscr, TRUE); 
 
-    // Create main window
-    win = newwin(LINES - 3, COLS - 2, 0, 0); // Adjust window size
-    winContacts = newwin(LINES - 3, COLS - 2, 0, 0); // Adjust window size
+    win = newwin(LINES - 3, COLS - 2, 0, 0); 
+    winContacts = newwin(LINES - 3, COLS - 2, 0, 0);
 
     if (win == NULL || winContacts == NULL) {
         fprintf(stderr, "Error creating window.\n");
@@ -208,7 +206,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
         wclear(win);
         box(win, 0, 0);
 
-        // Display contacts within the visible area
+        /* render contacts */
         for (int i = start_contact; i < num_contacts && i < start_contact + LINES - 3; i++) {
             if (i == start_contact + highlight) {
                 wattron(win, A_STANDOUT);
@@ -216,11 +214,12 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             mvwprintw(win, i - start_contact + 1, 1, "%d. %s %s", contacts[i].index, contacts[i].first_name, contacts[i].last_name);
             wattroff(win, A_STANDOUT);
         }
+        mvwprintw(win, start_contact + num_contacts + 2, 1, "highlight: %d, number: %d", highlight,num_contacts);
 
-        // Get user input
         choice = wgetch(win);
 
-        // Process user input
+
+        /* process user input */
         switch(choice) {
             case KEY_UP:
             case 'k':
@@ -235,22 +234,20 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             case KEY_DOWN:
             case 'j':
                 highlight++;
-                if (highlight >= LINES - 3 || start_contact + highlight >= num_contacts) {
-                    highlight = LINES - 4;
+                if (highlight >= LINES - 3 || start_contact + highlight >= num_contacts ) {
+                    highlight = num_contacts - 1;
                     if (start_contact + LINES - 3 < num_contacts) {
-                        start_contact++; // Scroll down
+                        start_contact++; 
                     }
                 }
                 break;
             case 10: /* Enter key */
             case 'l':
-                // Display the selected contact
                 keypad(win, false);
                 keypad(winContacts, true);
                 refresh();
                 display_contact(winContacts, contacts[start_contact + highlight], filepath);
 
-                /* re-read contacts */
                 num_contacts = readContacts(contacts, filepath);
 
                 wclear(win);
@@ -268,6 +265,8 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
 
                 /* re-read contacts */
                 num_contacts = readContacts(contacts, filepath);
+
+
                 break;
             case 'd':
                 deleteContact(start_contact + highlight,filepath);
