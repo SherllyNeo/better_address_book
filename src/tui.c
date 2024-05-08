@@ -186,7 +186,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
-    int offset_lines = 3;
+    int offset_lines = 5;
     int offset_cols = 2;
 
     initscr();
@@ -216,7 +216,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             mvwprintw(win, i - start_contact + 1, 1, "%d. %s %s", contacts[i].index, contacts[i].first_name, contacts[i].last_name);
             wattroff(win, A_STANDOUT);
         }
-        mvwprintw(win, start_contact + num_contacts + 2, 1, "highlight: %d, number: %d", highlight,num_contacts);
+        mvwprintw(win, start_contact + num_contacts + 2, 1, "number of contacts: %d", num_contacts);
 
         choice = wgetch(win);
 
