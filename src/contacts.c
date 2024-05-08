@@ -134,6 +134,26 @@ int readContacts(Contact contacts[], char* filepath) {
         strncpy(contacts[row].address,parsed_csv.content[row][4],Address);
         strncpy(contacts[row].notes,parsed_csv.content[row][5],Notes);
         contacts[row].index = row;
+
+        if (strlen(contacts[row].first_name) <= 0) {
+            strncpy(contacts[row].first_name," ",1);
+        }
+        if (strlen(contacts[row].last_name) <= 0) {
+            strncpy(contacts[row].last_name," ",1);
+        }
+        if (strlen(contacts[row].email) <= 0) {
+            strncpy(contacts[row].email," ",1); 
+        }
+
+        if (strlen(contacts[row].phone) <= 0) {
+            strncpy(contacts[row].phone," ",1); 
+        }
+        if (strlen(contacts[row].address) <= 0) {
+            strncpy(contacts[row].address," ",1); 
+        }
+        if (strlen(contacts[row].notes) <= 0) {
+            strncpy(contacts[row].notes," ",1); 
+        }
     }
 
     count = parsed_csv.rows;

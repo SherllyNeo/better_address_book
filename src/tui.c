@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <stdio.h>
 #include "shared.h"
 #include "file.h"
 #include "contacts.h"
@@ -6,6 +7,52 @@
 #include "stdlib.h"
 
 
+char* construct_field_display_string(char* field_name, char* field, bool editing, int editing_cursor) {
+    int len = strlen(field);
+    char* display_string;
+    int size;
+
+    /* Determine the size of the string */
+    if (editing) {
+        size = snprintf(NULL, 0, "(Editing) %s: %s", field_name, field);
+        display_string = (char*)malloc(size + 1); /* +1 for null terminator */
+        if (display_string == NULL) {
+            /* Handle memory allocation failure */
+            return NULL;
+        }
+
+
+        /* Construct the display string with "(Editing)" */
+        sprintf(display_string, "(Editing) %s: ", field_name);
+        /* Insert cursor underscore at the correct position */
+        if (editing_cursor <= 0) {
+            strcat(display_string, "_");
+            strcat(display_string, field);
+        } else if (editing_cursor >= len) {
+            strcat(display_string, field);
+            strcat(display_string, "_");
+        } else {
+            strncat(display_string, field, editing_cursor);
+            strcat(display_string, "_");
+            strcat(display_string, field + editing_cursor);
+        }
+
+    } else {
+        size = snprintf(NULL, 0, "%s: %s", field_name, field);
+        display_string = (char*)malloc(size + 1); /* +1 for null terminator */
+        if (display_string == NULL) {
+            /* Handle memory allocation failure */
+            return NULL;
+        }
+
+        /* Construct the display string without "(Editing)" */
+        sprintf(display_string, "%s: %s", field_name,field);
+    }
+
+    display_string[size + 1] = '\0';
+
+    return display_string;
+}
 
 
 void display_contact(WINDOW *win, Contact contact, char* filepath) {
@@ -14,8 +61,12 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
     int ch;
     char edited_value[LINESIZE] = { 0 };
     int editing_index = -1;
+    int editing_cursor = -1;
 
     while (1) {
+
+        
+
         wclear(win);
         box(win, 0, 0);
 
@@ -27,11 +78,11 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             if (i < num_properties) {
                 switch (i) {
                     case 0:
-                        if (editing_index == 0) {
-                            mvwprintw(win, 1, 1, "(Editing) First Name: %s_", contact.first_name);
-                        }
-                        else {
-                           mvwprintw(win, 1, 1, "First Name: %s", contact.first_name);
+                        ;
+                        char* display_string = construct_field_display_string("First Name", contact.first_name, editing_index == 0, editing_cursor);
+                        mvwprintw(win, 1, 1, "%s", display_string);
+                        if (display_string) {
+                            free(display_string);
                         }
                         break;
                     case 1:
@@ -88,21 +139,57 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             wrefresh(win);
 
             switch(ch) {
+                case KEY_RIGHT:
+                    editing_cursor++;
+                    if (editing_cursor > strlen(edited_value)) {
+                        editing_cursor = strlen(edited_value);
+                    }
+                    break;
+                case KEY_LEFT:
+                    editing_cursor--;
+                    if (editing_cursor < 0) {
+                        editing_cursor = 0;
+                    }
+                    break;
                 case 10:
                     /* save */
                     editing_index = -1;
+                    editing_cursor = -1;
+
+                    if (strlen(edited_value) <= 0) {
+                        edited_value[0] = ' ';
+                        edited_value[1] = '\0';
+                    }
+
 
                     editLine(contact, filepath, contact.index);
                     break;
                 case KEY_BACKSPACE:
-                    if (strlen(edited_value) > 0) {
+                    /* When backspacing, we have to decriment the position of each value after the cursor */
+                    if (strlen(edited_value) > 0 && edited_value[0] != '\0') {
+                        for (int i = editing_cursor; i < strlen(edited_value); i++) {
+                            edited_value[i-1] = edited_value[i];
+                        }
                         edited_value[strlen(edited_value) - 1] = '\0';
+                        editing_cursor--;
                     }
                     break;
                 default:
                     if (strlen(edited_value) < LINESIZE) {
-                        edited_value[strlen(edited_value)] = ch;
-                        edited_value[strlen(edited_value) + 1] = '\0';
+
+                        if (editing_cursor <= 0 && edited_value[0] == '\0') {
+                            edited_value[0] = ' ';
+                            edited_value[1] = '\0';
+                        }
+
+                        char new_value[LINESIZE] = { 0 };
+                        strncpy(new_value, edited_value, editing_cursor);
+                        new_value[editing_cursor] = ch; 
+                        new_value[editing_cursor + 1] = '\0';
+                        strncat(new_value, edited_value + editing_cursor, LINESIZE - strlen(new_value) - 1); 
+                        strcpy(edited_value, new_value);
+
+                        editing_cursor++;
                     }
                     break;
             }
@@ -147,6 +234,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                             strcpy(edited_value, contact.notes);
                             break;
                     }
+                    editing_cursor = strlen(edited_value);
                     break;
                 case 'q':
                 case 'h':
@@ -182,7 +270,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
 
 
 void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) {
-    WINDOW *win, *winContacts;
+    WINDOW *win, *winContacts, *winNumber;
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
@@ -195,6 +283,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     keypad(stdscr, TRUE); 
 
     win = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0); 
+    winNumber = newwin(offset_lines, offset_cols, LINES - offset_lines, COLS - offset_cols); 
     winContacts = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0);
 
     if (win == NULL || winContacts == NULL) {
@@ -216,7 +305,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             mvwprintw(win, i - start_contact + 1, 1, "%d. %s %s", contacts[i].index, contacts[i].first_name, contacts[i].last_name);
             wattroff(win, A_STANDOUT);
         }
-        mvwprintw(win, start_contact + num_contacts + 2, 1, "number of contacts: %d", num_contacts);
+        mvwprintw(winNumber, (LINES - offset_lines) + 1, 1, "number of contacts: %d", num_contacts);
 
         choice = wgetch(win);
 

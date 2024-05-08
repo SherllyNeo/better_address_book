@@ -166,6 +166,30 @@ int deleteLine(char* filepath, int lineToDelete) {
 }
 
 int editLine(Contact contact,char* filepath, int line) {
+
+        /* check for emtpy */
+        if (strlen(contact.first_name) <= 0) {
+            strncpy(contact.first_name," ",1);
+        }
+        if (strlen(contact.last_name) <= 0) {
+            strncpy(contact.last_name," ",1);
+        }
+        if (strlen(contact.email) <= 0) {
+            strncpy(contact.email," ",1); 
+        }
+
+        if (strlen(contact.phone) <= 0) {
+            strncpy(contact.phone," ",1); 
+        }
+        if (strlen(contact.address) <= 0) {
+            strncpy(contact.address," ",1); 
+        }
+        if (strlen(contact.notes) <= 0) {
+            strncpy(contact.notes," ",1); 
+        }
+
+
+
     int write_failed = writeLine(contact, filepath,line + 2);
     if (write_failed) {
         fprintf(stderr,"Failed to write new contact\n");
