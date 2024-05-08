@@ -28,21 +28,41 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             if (i < num_properties) {
                 switch (i) {
                     case 0:
-                        mvwprintw(win, 1, 1, "First Name: %s", contact.first_name);
+                        if (editing) {
+                            mvwprintw(win, 1, 1, "(Editing) First Name: %s_", contact.first_name);
+                        }
+                        else {
+                           mvwprintw(win, 1, 1, "First Name: %s", contact.first_name);
+                        }
                         break;
                     case 1:
+                        if (editing) {
+                            mvwprintw(win, 2, 1, "(Editing) Last Name: %s_", contact.last_name);
+                        }
                         mvwprintw(win, 2, 1, "Last Name: %s", contact.last_name);
                         break;
                     case 2:
+                        if (editing) {
+                            mvwprintw(win, 3, 1, "(Editing) Email: %s_", contact.email);
+                        }
                         mvwprintw(win, 3, 1, "Email: %s", contact.email);
                         break;
                     case 3:
+                        if (editing) {
+                            mvwprintw(win, 4, 1, "(Editing) Phone: %s_", contact.phone);
+                        }
                         mvwprintw(win, 4, 1, "Phone: %s", contact.phone);
                         break;
                     case 4:
+                        if (editing) {
+                            mvwprintw(win, 5, 1, "(Editing) Address: %s_", contact.address);
+                        }
                         mvwprintw(win, 5, 1, "Address: %s", contact.address);
                         break;
                     case 5:
+                        if (editing) {
+                            mvwprintw(win, 6, 1, "(Editing) Notes: %s_", contact.notes);
+                        }
                         mvwprintw(win, 6, 1, "Notes: %s", contact.notes);
                         break;
                 }
@@ -51,67 +71,18 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             wattroff(win, A_STANDOUT);
         }
 
-        if (editing) {
-            switch (highlight) {
-                case 0:
-                    strcpy(edited_value, contact.first_name);
-                    strcpy(edited_field,"first_name");
-                    break;
-                case 1:
-                    strcpy(edited_value, contact.last_name);
-                    strcpy(edited_field,"last_name");
-                    break;
-                case 2:
-                    strcpy(edited_value, contact.email);
-                    strcpy(edited_field,"email");
-                    break;
-                case 3:
-                    strcpy(edited_value, contact.phone);
-                    strcpy(edited_field,"phone");
-                    break;
-                case 4:
-                    strcpy(edited_value, contact.address);
-                    strcpy(edited_field,"address");
-                    break;
-                case 5:
-                    strcpy(edited_value, contact.notes);
-                    strcpy(edited_field,"notes");
-                    break;
-            }
-        }
-
         wrefresh(win);
 
         ch = wgetch(win);
 
         if (editing) {
-            mvwprintw(win, num_properties + 3, 1, "Editing %s: %s_", edited_field, edited_value);
-            mvwprintw(win, num_properties + 2, 1, "Press enter to save");
-        }
+            wrefresh(win);
 
-        if (editing) {
             switch(ch) {
                 case 10:
                     /* save */
                     editing = false;
 
-                    switch (highlight) {
-                        case 0:
-                            strcpy(contact.first_name, edited_value);
-                            break;
-                        case 1:
-                            strcpy(contact.email, edited_value);
-                            break;
-                        case 2:
-                            strcpy(contact.phone, edited_value);
-                            break;
-                        case 3:
-                            strcpy(contact.address, edited_value);
-                            break;
-                        case 4:
-                            strcpy(contact.notes, edited_value);
-                            break;
-                    }
                     editLine(contact, filepath, contact.index);
                     break;
                 case KEY_BACKSPACE:
@@ -145,6 +116,33 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     break;
                 case 10: /* Enter key */
                     editing = true;
+                    /* init values for editing */
+                    switch (highlight) {
+                        case 0:
+                            strcpy(edited_value, contact.first_name);
+                            strcpy(edited_field,"first_name");
+                            break;
+                        case 1:
+                            strcpy(edited_value, contact.last_name);
+                            strcpy(edited_field,"last_name");
+                            break;
+                        case 2:
+                            strcpy(edited_value, contact.email);
+                            strcpy(edited_field,"email");
+                            break;
+                        case 3:
+                            strcpy(edited_value, contact.phone);
+                            strcpy(edited_field,"phone");
+                            break;
+                        case 4:
+                            strcpy(edited_value, contact.address);
+                            strcpy(edited_field,"address");
+                            break;
+                        case 5:
+                            strcpy(edited_value, contact.notes);
+                            strcpy(edited_field,"notes");
+                            break;
+                    }
                     break;
                 case 'l':
                     editing = true;
@@ -156,6 +154,27 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             }
         }
 
+        wrefresh(win);
+        switch (highlight) {
+            case 0:
+                strcpy(contact.first_name, edited_value);
+                break;
+            case 1:
+                strcpy(contact.last_name, edited_value);
+                break;
+            case 2:
+                strcpy(contact.email, edited_value);
+                break;
+            case 3:
+                strcpy(contact.phone, edited_value);
+                break;
+            case 4:
+                strcpy(contact.address, edited_value);
+                break;
+            case 5:
+                strcpy(contact.notes, edited_value);
+                break;
+        }
         wrefresh(win);
     }
 }
@@ -229,6 +248,10 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 keypad(winContacts, true);
                 refresh();
                 display_contact(winContacts, contacts[start_contact + highlight], filepath);
+
+                /* re-read contacts */
+                num_contacts = readContacts(contacts, filepath);
+
                 wclear(win);
                 wclear(winContacts);
                 keypad(win, true);
@@ -241,6 +264,12 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 ;
                 Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
                 appendLine(default_contact, filepath);
+
+                /* re-read contacts */
+                num_contacts = readContacts(contacts, filepath);
+                break;
+            case 'd':
+                deleteContact(start_contact + highlight,filepath);
 
                 /* re-read contacts */
                 num_contacts = readContacts(contacts, filepath);
