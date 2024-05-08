@@ -299,7 +299,6 @@ int dsvInsertRow(DSV *dsv, char** tmp_row, size_t position) {
 
 
     /* insure position is in dsv, position will always be positive */
-    printf("dsv->rows: %zu\n",dsv->rows);
     if (position > dsv->rows) {
         fprintf(stderr,"DSV_USR_ERR: position to try and insert row is out of bounds\n");
         return 1;
