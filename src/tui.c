@@ -186,14 +186,16 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
+    int offset_lines = 3;
+    int offset_cols = 2;
 
     initscr();
     cbreak(); 
     noecho(); 
     keypad(stdscr, TRUE); 
 
-    win = newwin(LINES - 3, COLS - 2, 0, 0); 
-    winContacts = newwin(LINES - 3, COLS - 2, 0, 0);
+    win = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0); 
+    winContacts = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0);
 
     if (win == NULL || winContacts == NULL) {
         fprintf(stderr, "Error creating window.\n");
@@ -234,9 +236,9 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             case KEY_DOWN:
             case 'j':
                 highlight++;
-                if (highlight >= LINES - 3 || start_contact + highlight >= num_contacts ) {
+                if (highlight >= LINES - offset_lines || start_contact + highlight >= num_contacts ) {
                     highlight = num_contacts - 1;
-                    if (start_contact + LINES - 3 < num_contacts) {
+                    if (start_contact + LINES - offset_lines < num_contacts) {
                         start_contact++; 
                     }
                 }
