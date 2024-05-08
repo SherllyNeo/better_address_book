@@ -60,6 +60,7 @@ int appendLine(Contact contact,char* filepath) {
     row[3] = strdup(contact.phone);
     row[4] = strdup(contact.address);
     row[5] = strdup(contact.notes);
+    row[6] = NULL;
 
     DSV parsed_csv = dsvParseFile(filepath, ',');
     if (!parsed_csv.valid) {

@@ -143,7 +143,6 @@ int readContacts(Contact contacts[], char* filepath) {
         fprintf(stderr, "unable to free parsed csv\n");
     }
 
-
     return count; 
 }
 
@@ -237,6 +236,9 @@ int editContact(Contact contact,char* filepath) {
 
 
     int edit_failed = editLine(contact, filepath,contact.index);
+    if (edit_failed) {
+        fprintf(stderr,"Failed to edit contact\n");
+    }
 
 
     return 0;

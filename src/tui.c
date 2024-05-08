@@ -11,7 +11,7 @@
 void display_contact(WINDOW *win, Contact contact, char* filepath) {
     int highlight = 0;
     int num_properties = 6;
-    char ch;
+    int ch;
     bool editing = false;
     char edited_value[LINESIZE] = { 0 };
     char edited_field[LINESIZE] = { 0 };
@@ -81,12 +81,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
         }
 
         wrefresh(win);
-        
 
-
-        wrefresh(win);
-
-        // Get user input
         ch = wgetch(win);
 
         if (editing) {
@@ -94,7 +89,6 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             mvwprintw(win, num_properties + 2, 1, "Press enter to save");
         }
 
-        // Process user input
         if (editing) {
             switch(ch) {
                 case 10:
@@ -121,13 +115,14 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     editLine(contact, filepath, contact.index);
                     break;
                 case KEY_BACKSPACE:
-                    if (editing && strlen(edited_value) > 0) {
+                    if (strlen(edited_value) > 0) {
                         edited_value[strlen(edited_value) - 1] = '\0';
                     }
                     break;
                 default:
                     if (strlen(edited_value) < LINESIZE) {
-                        strncat(edited_value, &ch, 1);
+                        edited_value[strlen(edited_value)] = ch;
+                        edited_value[strlen(edited_value) + 1] = '\0';
                     }
                     break;
             }
@@ -150,6 +145,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     break;
                 case 10: /* Enter key */
                     editing = true;
+                    break;
                 case 'l':
                     editing = true;
                     break;
@@ -243,11 +239,11 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 return;
             case 'a':
                 ;
-                Contact default_contact = { 0 };
+                Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
                 appendLine(default_contact, filepath);
 
                 /* re-read contacts */
-                //readContacts(contacts, filepath);
+                num_contacts = readContacts(contacts, filepath);
 
                 break;
         }
