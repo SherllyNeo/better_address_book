@@ -12,9 +12,8 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
     int highlight = 0;
     int num_properties = 6;
     int ch;
-    bool editing = false;
     char edited_value[LINESIZE] = { 0 };
-    char edited_field[LINESIZE] = { 0 };
+    int editing_index = -1;
 
     while (1) {
         wclear(win);
@@ -28,7 +27,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             if (i < num_properties) {
                 switch (i) {
                     case 0:
-                        if (editing) {
+                        if (editing_index == 0) {
                             mvwprintw(win, 1, 1, "(Editing) First Name: %s_", contact.first_name);
                         }
                         else {
@@ -36,34 +35,44 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                         }
                         break;
                     case 1:
-                        if (editing) {
+                        if (editing_index == 1) {
                             mvwprintw(win, 2, 1, "(Editing) Last Name: %s_", contact.last_name);
                         }
-                        mvwprintw(win, 2, 1, "Last Name: %s", contact.last_name);
+                        else {
+                            mvwprintw(win, 2, 1, "Last Name: %s", contact.last_name);
+                        }
                         break;
                     case 2:
-                        if (editing) {
+                        if (editing_index == 2) {
                             mvwprintw(win, 3, 1, "(Editing) Email: %s_", contact.email);
                         }
-                        mvwprintw(win, 3, 1, "Email: %s", contact.email);
+                        else {
+                            mvwprintw(win, 3, 1, "Email: %s", contact.email);
+                        }
                         break;
                     case 3:
-                        if (editing) {
+                        if (editing_index == 3) {
                             mvwprintw(win, 4, 1, "(Editing) Phone: %s_", contact.phone);
                         }
-                        mvwprintw(win, 4, 1, "Phone: %s", contact.phone);
+                        else {
+                            mvwprintw(win, 4, 1, "Phone: %s", contact.phone);
+                        }
                         break;
                     case 4:
-                        if (editing) {
+                        if (editing_index == 4) {
                             mvwprintw(win, 5, 1, "(Editing) Address: %s_", contact.address);
                         }
-                        mvwprintw(win, 5, 1, "Address: %s", contact.address);
+                        else {
+                            mvwprintw(win, 5, 1, "Address: %s", contact.address);
+                        }
                         break;
                     case 5:
-                        if (editing) {
+                        if (editing_index == 5) {
                             mvwprintw(win, 6, 1, "(Editing) Notes: %s_", contact.notes);
                         }
-                        mvwprintw(win, 6, 1, "Notes: %s", contact.notes);
+                        else {
+                            mvwprintw(win, 6, 1, "Notes: %s", contact.notes);
+                        }
                         break;
                 }
             }
@@ -75,13 +84,13 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
 
         ch = wgetch(win);
 
-        if (editing) {
+        if (editing_index != -1) {
             wrefresh(win);
 
             switch(ch) {
                 case 10:
                     /* save */
-                    editing = false;
+                    editing_index = -1;
 
                     editLine(contact, filepath, contact.index);
                     break;
@@ -114,38 +123,30 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                         highlight = 0;
                     }
                     break;
+                case 'l':
                 case 10: /* Enter key */
-                    editing = true;
+                    editing_index = highlight;
                     /* init values for editing */
                     switch (highlight) {
                         case 0:
                             strcpy(edited_value, contact.first_name);
-                            strcpy(edited_field,"first_name");
                             break;
                         case 1:
                             strcpy(edited_value, contact.last_name);
-                            strcpy(edited_field,"last_name");
                             break;
                         case 2:
                             strcpy(edited_value, contact.email);
-                            strcpy(edited_field,"email");
                             break;
                         case 3:
                             strcpy(edited_value, contact.phone);
-                            strcpy(edited_field,"phone");
                             break;
                         case 4:
                             strcpy(edited_value, contact.address);
-                            strcpy(edited_field,"address");
                             break;
                         case 5:
                             strcpy(edited_value, contact.notes);
-                            strcpy(edited_field,"notes");
                             break;
                     }
-                    break;
-                case 'l':
-                    editing = true;
                     break;
                 case 'q':
                 case 'h':
@@ -155,7 +156,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
         }
 
         wrefresh(win);
-        switch (highlight) {
+        switch (editing_index) {
             case 0:
                 strcpy(contact.first_name, edited_value);
                 break;
