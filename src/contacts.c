@@ -236,23 +236,8 @@ int editContact(Contact contact,char* filepath) {
     printf("changing to %s\n",user_content);
 
 
-    int write_failed = writeLine(contact, filepath,contact.index + 2);
-    if (write_failed) {
-        fprintf(stderr,"Failed to write new contact\n");
-        return 1;
-    }
-    else {
-        printf("[+] added new data\n");
-    }
+    int edit_failed = editLine(contact, filepath,contact.index);
 
-    int delete_failed = deleteLine(filepath, contact.index + 1);
-    if (delete_failed) {
-        fprintf(stderr,"Failed to edit contact as unable to delete old line\n");
-        return 1;
-    }
-    else {
-        printf("[+] deleted old data\n");
-    }
 
     return 0;
 }

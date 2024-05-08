@@ -5,7 +5,7 @@
 #include "shared.h"
 
 
-void display_contacts(Contact contacts[], int num_contacts, void (*update_callback)(Contact));
+void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath);
 
 #endif
 

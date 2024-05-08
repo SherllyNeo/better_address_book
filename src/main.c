@@ -84,6 +84,9 @@ int main(int argc, char *argv[])
     Contact contacts[MAX_CONTACTS] = { 0 };
     Mode mode = None;
 
+    /* find contact at that index - read em and get */
+    int count = readContacts(contacts, address_book_path);
+
     if (argc > 1) {
 
         for (int i = 0; i<argc; i++) {
@@ -120,16 +123,14 @@ int main(int argc, char *argv[])
             }
         }
 
-        /* find contact at that index - read em and get */
-        int count = readContacts(contacts, address_book_path);
 
         if (count <= 0) {
             fprintf(stderr,"unable to read contacts\n");
         }
 
         if (index != -1) {
-            if (index < 0 || index > count) {
-                fprintf(stderr,"contact at index %d, does not exist\nBounds are 0 to %d\n",index,count);
+            if (index < 0 || index >= count) {
+                fprintf(stderr,"contact at index %d, does not exist\nBounds are 0 to %d\n",index,count-1);
                 return ERR_ARGS;
             }
             chosen_contact = contacts[index];
@@ -225,6 +226,9 @@ int main(int argc, char *argv[])
             free(matches);
             return 0;
         }
+    }
+    else {
+        tui_display_contacts(contacts, count,address_book_path);
     }
 
 

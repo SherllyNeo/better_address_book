@@ -164,6 +164,27 @@ int deleteLine(char* filepath, int lineToDelete) {
     return 0;
 }
 
+int editLine(Contact contact,char* filepath, int line) {
+    int write_failed = writeLine(contact, filepath,line + 2);
+    if (write_failed) {
+        fprintf(stderr,"Failed to write new contact\n");
+        return 1;
+    }
+    else {
+        printf("[+] added new data\n");
+    }
+
+    int delete_failed = deleteLine(filepath, line + 1);
+    if (delete_failed) {
+        fprintf(stderr,"Failed to edit contact as unable to delete old line\n");
+        return 1;
+    }
+    else {
+        printf("[+] deleted old data\n");
+    }
+
+    return 0;
+}
 
 int initBook(char* filepath) {
     char columns[] = "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n";

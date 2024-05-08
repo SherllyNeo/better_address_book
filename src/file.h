@@ -6,6 +6,7 @@
 #include "shared.h"
 #include "file.c"
 
+int editLine(Contact contact,char* filepath, int line);
 
 int writeLine(Contact contact,char* filepath, int line);
 
