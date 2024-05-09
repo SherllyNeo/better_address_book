@@ -18,7 +18,7 @@ and if you want an example
 cp example.babook.csv ~/.local/share/babook.csv
 ```
 
-optionally, you can specify where you address book should be by setting the 
+optionally, you can specify where your address book should be by setting the 
 ```bash
 export ADDRESS_BOOK_PATH="/home/username/babook.csv"
 ```
