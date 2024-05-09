@@ -3,9 +3,9 @@
 
 #define FirstName 100
 #define LastName 100
-#define Email 100
+#define Email 300
 #define Phone 100
-#define Address 200
+#define Address 500
 #define Notes 500
 #define MAX_CONTACTS 5000
 #define LINESIZE (FirstName + LastName + Email + Phone + Address + Notes)*2

@@ -10,8 +10,8 @@
 
 char* construct_field_display_string(char* field_name, char* field, bool editing, int editing_cursor) {
     int len = strlen(field);
-    char* display_string;
-    int size;
+    char* display_string = NULL;
+    int size = 0;
 
     /* Determine the size of the string */
     if (editing) {
@@ -99,45 +99,45 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                         /* Displaying First Name */
                         char* display_string_first_name = construct_field_display_string("First Name", contact.first_name, editing_index == 0, editing_cursor);
                         mvwprintw(win, 1, 1, "%s", display_string_first_name);
-                        if (display_string_first_name) {
-                            free(display_string_first_name);
-                        }
+                     //   if (display_string_first_name) {
+                     //       free(display_string_first_name);
+                     //   }
                         break;
                     case 1:
                         ;
                         /* Displaying Last Name */
                         char* display_string_last_name = construct_field_display_string("Last Name", contact.last_name, editing_index == 1, editing_cursor);
                         mvwprintw(win, 2, 1, "%s", display_string_last_name);
-                        if (display_string_last_name) {
-                            free(display_string_last_name);
-                        }
+                     //   if (display_string_last_name) {
+                     //       free(display_string_last_name);
+                     //   }
                         break;
                     case 2:
                         ;
                         /* Displaying Email */
                         char* display_string_email = construct_field_display_string("Email", contact.email, editing_index == 2, editing_cursor);
                         mvwprintw(win, 3, 1, "%s", display_string_email);
-                        if (display_string_email) {
-                            free(display_string_email);
-                        }
+                     //   if (display_string_email) {
+                     //       free(display_string_email);
+                     //   }
                         break;
                     case 3:
                         ;
                         /* Displaying Phone */
                         char* display_string_phone = construct_field_display_string("Phone", contact.phone, editing_index == 3, editing_cursor);
                         mvwprintw(win, 4, 1, "%s", display_string_phone);
-                        if (display_string_phone) {
-                            free(display_string_phone);
-                        }
+                     //   if (display_string_phone) {
+                     //       free(display_string_phone);
+                     //   }
                         break;
                     case 4:
                         ;
                         /* Displaying Address */
                         char* display_string_address = construct_field_display_string("Address", contact.address, editing_index == 4, editing_cursor);
                         mvwprintw(win, 5, 1, "%s", display_string_address);
-                        if (display_string_address) {
-                            free(display_string_address);
-                        }
+                     //   if (display_string_address) {
+                     //       free(display_string_address);
+                     //   }
                         break;
                     case 5:
                         ;
@@ -199,7 +199,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     }
                     break;
                 default:
-                    if ((int)strlen(edited_value) < LINESIZE && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' ) ) {
+                    if ((int)strlen(edited_value) < LINESIZE && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ','  ) ) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = ' ';
@@ -298,7 +298,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
-    int offset_lines = 5;
+    int offset_lines = 7;
     int offset_cols = 2;
 
     initscr();
@@ -328,9 +328,10 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
 
         int cur = highlight + start_contact;
         mvwprintw(winOutput, 0, 1, "Press enter to select/edit");
-        mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s, Address %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone,contacts[cur].address);
-        mvwprintw(winOutput, 2, 2, "Press a to add a new contact");
-        mvwprintw(winOutput, 3, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
+        mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone);
+        mvwprintw(winOutput, 2, 1, "Address %s",contacts[cur].address);
+        mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
+        mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
 
         wrefresh(winOutput);
 
