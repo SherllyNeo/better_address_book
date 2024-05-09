@@ -7,22 +7,15 @@
 #include "stdlib.h"
 #include "ctype.h"
 
+#define CHARWIDTH 100
 
-char* construct_field_display_string(char* field_name, char* field, bool editing, int editing_cursor) {
+
+int construct_field_display_string(char display_string[],size_t size,char* field_name, char* field, bool editing, int editing_cursor) {
     int len = strlen(field);
-    char* display_string = NULL;
-    int size = 0;
+    memset(display_string,0,(size+1)*sizeof(char));
 
     /* Determine the size of the string */
     if (editing) {
-        size = snprintf(NULL, 0, "(Editing) %s: %s", field_name, field);
-        display_string = (char*)malloc(size + 1); /* +1 for null terminator */
-        if (display_string == NULL) {
-            /* Handle memory allocation failure */
-            return NULL;
-        }
-
-
         /* Construct the display string with "(Editing)" */
         sprintf(display_string, "(Editing) %s: ", field_name);
         /* Insert cursor underscore at the correct position */
@@ -39,20 +32,13 @@ char* construct_field_display_string(char* field_name, char* field, bool editing
         }
 
     } else {
-        size = snprintf(NULL, 0, "%s: %s", field_name, field);
-        display_string = (char*)malloc(size + 1); /* +1 for null terminator */
-        if (display_string == NULL) {
-            /* Handle memory allocation failure */
-            return NULL;
-        }
-
         /* Construct the display string without "(Editing)" */
         sprintf(display_string, "%s: %s", field_name,field);
     }
 
     display_string[size + 1] = '\0';
 
-    return display_string;
+    return 0;
 }
 
 
@@ -92,64 +78,90 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                 wattron(win, A_STANDOUT);
             }
 
-            if (i < num_properties) {
-                switch (i) {
-                    case 0:
-                        ;
-                        /* Displaying First Name */
-                        char* display_string_first_name = construct_field_display_string("First Name", contact.first_name, editing_index == 0, editing_cursor);
-                        mvwprintw(win, 1, 1, "%s", display_string_first_name);
-                        if (display_string_first_name) {
-                            free(display_string_first_name);
-                        }
-                        break;
-                    case 1:
-                        ;
-                        /* Displaying Last Name */
-                        char* display_string_last_name = construct_field_display_string("Last Name", contact.last_name, editing_index == 1, editing_cursor);
-                        mvwprintw(win, 2, 1, "%s", display_string_last_name);
-                        if (display_string_last_name) {
-                            free(display_string_last_name);
-                        }
-                        break;
-                    case 2:
-                        ;
-                        /* Displaying Email */
-                        char* display_string_email = construct_field_display_string("Email", contact.email, editing_index == 2, editing_cursor);
-                        mvwprintw(win, 3, 1, "%s", display_string_email);
-                        if (display_string_email) {
-                            free(display_string_email);
-                        }
-                        break;
-                    case 3:
-                        ;
-                        /* Displaying Phone */
-                        char* display_string_phone = construct_field_display_string("Phone", contact.phone, editing_index == 3, editing_cursor);
-                        mvwprintw(win, 4, 1, "%s", display_string_phone);
-                        if (display_string_phone) {
-                            free(display_string_phone);
-                        }
-                        break;
-                    case 4:
-                        ;
-                        /* Displaying Address */
-                        char* display_string_address = construct_field_display_string("Address", contact.address, editing_index == 4, editing_cursor);
-                        mvwprintw(win, 5, 1, "%s", display_string_address);
-                        if (display_string_address) {
-                            free(display_string_address);
-                        }
-                        break;
-                    case 5:
-                        ;
-                        /* Displaying Notes */
-                        char* display_string_notes = construct_field_display_string("Notes", contact.notes, editing_index == 5, editing_cursor);
-                        mvwprintw(win, 6, 1, "%s", display_string_notes);
-                        if (display_string_notes) {
-                            free(display_string_notes);
-                        }
-                        break;
-                }
+            /* print lines */
+            switch (i) {
+                case 0:
+                    ;
+                    {
+                    /* Displaying First Name */
+                    size_t size_fn = snprintf(NULL, 0, "(Editing) %s: %s", "First name", contact.first_name);
+                    char display_string_first_name[size_fn + 1]; 
+                    int failed_to_generate_string_for_first_name = construct_field_display_string(display_string_first_name, size_fn, "First Name", contact.first_name, editing_index == 0, editing_cursor);
+                    if (failed_to_generate_string_for_first_name) {
+                        fprintf(stderr, "Failed to generate string for first name");
+                    }
+                    mvwprintw(win, 1, 1, "%s", display_string_first_name);
+                    break;
+                    }
 
+                case 1:
+                    ;
+                    {
+                    /* Displaying Last Name */
+                    size_t size_ln = snprintf(NULL, 0, "(Editing) %s: %s", "Last Name", contact.last_name);
+                    char display_string_last_name[size_ln + 1];
+                    int failed_to_generate_string_for_last_name = construct_field_display_string(display_string_last_name, size_ln, "Last Name", contact.last_name, editing_index == 1, editing_cursor);
+                    if (failed_to_generate_string_for_last_name) {
+                        fprintf(stderr, "Failed to generate string for last name");
+                    }
+                    mvwprintw(win, 2, 1, "%s", display_string_last_name);
+                    break;
+                    }
+
+                case 2:
+                    ;
+                    {
+                    /* Displaying Email */
+                    size_t size_e = snprintf(NULL, 0, "(Editing) %s: %s", "Email", contact.email);
+                    char display_string_email[size_e + 1];
+                    int failed_to_generate_string_for_email = construct_field_display_string(display_string_email, size_e, "Email", contact.email, editing_index == 2, editing_cursor);
+                    if (failed_to_generate_string_for_email) {
+                        fprintf(stderr, "Failed to generate string for email");
+                    }
+                    mvwprintw(win, 3, 1, "%s", display_string_email);
+                    break;
+                    }
+
+                case 3:
+                    ;
+                    {
+                    /* Displaying Phone */
+                    size_t size_p = snprintf(NULL, 0, "(Editing) %s: %s", "Phone", contact.phone);
+                    char display_string_phone[size_p + 1];
+                    int failed_to_generate_string_for_phone = construct_field_display_string(display_string_phone, size_p, "Phone", contact.phone, editing_index == 3, editing_cursor);
+                    if (failed_to_generate_string_for_phone) {
+                        fprintf(stderr, "Failed to generate string for phone");
+                    }
+                    mvwprintw(win, 4, 1, "%s", display_string_phone);
+                    break;
+                    }
+                case 4:
+                    ;
+                    {
+                    /* Displaying Address */
+                    size_t size_a = snprintf(NULL, 0, "(Editing) %s: %s", "Address", contact.address);
+                    char display_string_address[size_a + 1];
+                    int failed_to_generate_string_for_address = construct_field_display_string(display_string_address, size_a, "Address", contact.address, editing_index == 4, editing_cursor);
+                    if (failed_to_generate_string_for_address) {
+                        fprintf(stderr, "Failed to generate string for address");
+                    }
+                    mvwprintw(win, 5, 1, "%s", display_string_address);
+                    break;
+                    }
+
+                case 5:
+                    ;
+                    {
+                    /* Displaying Notes */
+                    size_t size_n = snprintf(NULL, 0, "(Editing) %s: %s", "Notes", contact.notes);
+                    char display_string_notes[size_n + 1];
+                    int failed_to_generate_string_for_notes = construct_field_display_string(display_string_notes, size_n, "Notes", contact.notes, editing_index == 5, editing_cursor);
+                    if (failed_to_generate_string_for_notes) {
+                        fprintf(stderr, "Failed to generate string for notes");
+                    }
+                    mvwprintw(win, 6, 1, "%s", display_string_notes);
+                    break;
+                    }
             }
 
             wattroff(win, A_STANDOUT);
@@ -199,7 +211,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     }
                     break;
                 default:
-                    if ((int)strlen(edited_value) < Notes && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ',' || ch == '\'' ) ) {
+                    if ((int)strlen(edited_value) < CHARWIDTH && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ',' || ch == '\'' ) ) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = ' ';
@@ -300,6 +312,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int choice;
     int offset_lines = 7;
     int offset_cols = 2;
+    int finding = false;
 
     initscr();
     cbreak(); 
@@ -384,6 +397,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 break;
             case 10: /* Enter key */
             case 'l':
+                finding = false;
                 keypad(win, false);
                 keypad(winContacts, true);
                 refresh();
@@ -401,10 +415,16 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 return;
             case 'f':
                 ;
-                char* search_string = "edit4";
-                num_contacts = searchContacts(contacts,num_contacts, search_string);
-                highlight = 0;
-                start_contact = 0;
+                if (!finding) {
+                    finding = true;
+                    char* search_string = "edit4";
+                    num_contacts = searchContacts(contacts,num_contacts, search_string);
+                    highlight = 0;
+                    start_contact = 0;
+                }
+                else {
+                    finding = false;
+                }
                 break;
             case 'a':
                 ;

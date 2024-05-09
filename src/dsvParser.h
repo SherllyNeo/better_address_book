@@ -201,7 +201,7 @@ DSV parse_source(char* source, size_t size, char delim) {
 
     /* assumptions of typical csv sizes */
     size_t rows_est = 5000;
-    size_t cols_est = 6;
+    size_t cols_est = 7;
     size_t strings_len_est = 10000;
     DSV returnVal = { NULL, 0, 0, false };
 
