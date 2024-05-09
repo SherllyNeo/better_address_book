@@ -122,38 +122,29 @@ int deleteLine(char* filepath, int lineToDelete) {
 
 int editLine(Contact contact,char* filepath, int line) {
 
-        /* check for emtpy */
-        if (strlen(contact.first_name) <= 0) {
-            strncpy(contact.first_name," \0",2);
-        }
-        if (strlen(contact.last_name) <= 0) {
-            strncpy(contact.last_name," \0",2);
-        }
-        if (strlen(contact.email) <= 0) {
-            strncpy(contact.email," \0",2); 
-        }
+    /* check for emtpy */
+    if (strlen(contact.first_name) <= 0) {
+        strncpy(contact.first_name," \0",2);
+    }
+    if (strlen(contact.last_name) <= 0) {
+        strncpy(contact.last_name," \0",2);
+    }
+    if (strlen(contact.email) <= 0) {
+        strncpy(contact.email," \0",2); 
+    }
 
-        if (strlen(contact.phone) <= 0) {
-            strncpy(contact.phone," \0",2); 
-        }
-        if (strlen(contact.address) <= 0) {
-            strncpy(contact.address," \0",2); 
-        }
-        if (strlen(contact.notes) <= 0) {
-            strncpy(contact.notes," \0",2); 
-        }
+    if (strlen(contact.phone) <= 0) {
+        strncpy(contact.phone," \0",2); 
+    }
+    if (strlen(contact.address) <= 0) {
+        strncpy(contact.address," \0",2); 
+    }
+    if (strlen(contact.notes) <= 0) {
+        strncpy(contact.notes," \0",2); 
+    }
 
-        /* delete */
-        int delete_failed = deleteLine(filepath, line + 2);
-        if (delete_failed) {
-            fprintf(stderr,"Failed to edit contact as unable to delete old line\n");
-            return 1;
-        }
-        else {
-            printf("[+] deleted old data\n");
-        }
 
-    /* write */
+    /* overwrite write */
     int write_failed = writeLine(contact,filepath, line + 2);
     if (write_failed) {
         fprintf(stderr,"unable to write updated csv\n");
