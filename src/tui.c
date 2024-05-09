@@ -64,9 +64,6 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
     int editing_cursor = -1;
 
     while (1) {
-
-        
-
         wclear(win);
         box(win, 0, 0);
 
@@ -314,6 +311,11 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             case KEY_UP:
             case 'k':
                 highlight--;
+                if (start_contact == 0 && highlight < 0) {
+                    /* if we scroll up at the top, set to the end */
+                    highlight = LINES - offset_lines - 2;
+                    start_contact = num_contacts - highlight - 1;
+                }
                 if (highlight < 0) {
                     highlight = 0;
                     if (start_contact > 0) {
@@ -338,7 +340,6 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                     highlight = 0;
                 }
 
-                fprintf(fp,"DEBUG sc: %d, ec: %d, cur: %d, number of contacts: %d\n",start_contact,end_contact,cursor,num_contacts);
                 
 
                 break;
