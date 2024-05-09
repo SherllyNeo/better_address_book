@@ -1,6 +1,16 @@
 # better_address_book
 A better address book written in C
 
+
+##
+
+Currently unmained
+
+TODO:
+* Remove all memory bugs
+* Add TUI searching
+* Add field specific searching to CLI
+
 ### Command line Useage
 
 ```bash
