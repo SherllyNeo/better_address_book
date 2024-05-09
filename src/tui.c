@@ -387,6 +387,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 fprintf(stderr, "Failed to generate string for search term\n");
             }
             mvwprintw(winOutput, 1, 1, "%s", display_string_search);
+            mvwprintw(winOutput, 8, 1, "searching all fields apart from notes, including index",num_contacts);
         }
 
         wrefresh(winOutput);
