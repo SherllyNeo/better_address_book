@@ -29,14 +29,14 @@ it will throw you into the TUI interface
 
 ### view all contacts
 - view all contacts, with the ability to add and delete them with a summary at the bottom
-![./images/tuicontacts.png]
+![tui display](./images/tuicontacts.png)
 ### view a single contacts
-![./images/tuicontact.png]
+![tui contact display](./images/tuicontact.png)
 ### edit a field
-![./images/tuiediting.png]
+![editing display](./images/tuiediting.png)
 ### search all contacts 
 - can search by any field apart from notes, including index
-![./images/tuisearch.png]
+![searching through contacts](./images/tuisearch.png)
 
 although it is often good to use the CLI interface for scripting
 
