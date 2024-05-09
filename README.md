@@ -31,13 +31,16 @@ it will throw you into the TUI interface
 
 ### view all contacts
 - view all contacts, with the ability to add and delete them with a summary at the bottom
+
 ![tui display](./images/tuicontacts.png)
-### view a single contacts
+
+### view a single contact
 ![tui contact display](./images/tuicontact.png)
 ### edit a field
 ![editing display](./images/tuiediting.png)
 ### search all contacts 
 - can search by any field apart from notes, including index
+
 ![searching through contacts](./images/tuisearch.png)
 
 although it is often good to use the CLI interface for scripting
@@ -81,8 +84,8 @@ You can use arrowkeys to move cursor within a string
 
 
 ### Technical notes
-* All contacts are stored in a csv that is parsed using my [CSV parsed](https://github.com/SherllyNeo/dsvParser/tree/main)
-* All of this is just a nice interface for interacting with the csv file, meaning your contacts are portable 
+* All contacts are stored in a csv that is parsed using my [CSV parser](https://github.com/SherllyNeo/dsvParser/tree/main).
+* All of this is just a nice interface for interacting with the csv file, meaning your contacts are portable.
 
 
 
