@@ -5,6 +5,7 @@
 #include "contacts.h"
 #include "string.h"
 #include "stdlib.h"
+#include "ctype.h"
 
 
 char* construct_field_display_string(char* field_name, char* field, bool editing, int editing_cursor) {
@@ -55,7 +56,7 @@ char* construct_field_display_string(char* field_name, char* field, bool editing
 }
 
 
-void display_contact(WINDOW *win, Contact contact, char* filepath) {
+void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOutput) {
     int highlight = 0;
     int num_properties = 6;
     int ch;
@@ -65,8 +66,21 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
 
     while (1) {
         wclear(win);
+        wclear(winOutput);
         box(win, 0, 0);
+        box(winOutput, 0, 0);
+        wrefresh(winOutput);
+        wrefresh(win);
 
+        if (editing_index != -1) {
+            mvwprintw(winOutput, 0, 1, "press enter to save change");
+            mvwprintw(winOutput, 1, 1, "Move cursor with arrow keys");
+        }
+        else {
+            mvwprintw(winOutput, 0, 1, "press enter to edit a field");
+        }
+
+        wrefresh(winOutput);
         for (int i = 0; i < num_properties; i++) {
             if (i == highlight) {
                 wattron(win, A_STANDOUT);
@@ -76,53 +90,60 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                 switch (i) {
                     case 0:
                         ;
-                        char* display_string = construct_field_display_string("First Name", contact.first_name, editing_index == 0, editing_cursor);
-                        mvwprintw(win, 1, 1, "%s", display_string);
-                        if (display_string) {
-                            free(display_string);
+                        /* Displaying First Name */
+                        char* display_string_first_name = construct_field_display_string("First Name", contact.first_name, editing_index == 0, editing_cursor);
+                        mvwprintw(win, 1, 1, "%s", display_string_first_name);
+                        if (display_string_first_name) {
+                            free(display_string_first_name);
                         }
                         break;
                     case 1:
-                        if (editing_index == 1) {
-                            mvwprintw(win, 2, 1, "(Editing) Last Name: %s_", contact.last_name);
-                        }
-                        else {
-                            mvwprintw(win, 2, 1, "Last Name: %s", contact.last_name);
+                        ;
+                        /* Displaying Last Name */
+                        char* display_string_last_name = construct_field_display_string("Last Name", contact.last_name, editing_index == 1, editing_cursor);
+                        mvwprintw(win, 2, 1, "%s", display_string_last_name);
+                        if (display_string_last_name) {
+                            free(display_string_last_name);
                         }
                         break;
                     case 2:
-                        if (editing_index == 2) {
-                            mvwprintw(win, 3, 1, "(Editing) Email: %s_", contact.email);
-                        }
-                        else {
-                            mvwprintw(win, 3, 1, "Email: %s", contact.email);
+                        ;
+                        /* Displaying Email */
+                        char* display_string_email = construct_field_display_string("Email", contact.email, editing_index == 2, editing_cursor);
+                        mvwprintw(win, 3, 1, "%s", display_string_email);
+                        if (display_string_email) {
+                            free(display_string_email);
                         }
                         break;
                     case 3:
-                        if (editing_index == 3) {
-                            mvwprintw(win, 4, 1, "(Editing) Phone: %s_", contact.phone);
-                        }
-                        else {
-                            mvwprintw(win, 4, 1, "Phone: %s", contact.phone);
+                        ;
+                        /* Displaying Phone */
+                        char* display_string_phone = construct_field_display_string("Phone", contact.phone, editing_index == 3, editing_cursor);
+                        mvwprintw(win, 4, 1, "%s", display_string_phone);
+                        if (display_string_phone) {
+                            free(display_string_phone);
                         }
                         break;
                     case 4:
-                        if (editing_index == 4) {
-                            mvwprintw(win, 5, 1, "(Editing) Address: %s_", contact.address);
-                        }
-                        else {
-                            mvwprintw(win, 5, 1, "Address: %s", contact.address);
+                        ;
+                        /* Displaying Address */
+                        char* display_string_address = construct_field_display_string("Address", contact.address, editing_index == 4, editing_cursor);
+                        mvwprintw(win, 5, 1, "%s", display_string_address);
+                        if (display_string_address) {
+                            free(display_string_address);
                         }
                         break;
                     case 5:
-                        if (editing_index == 5) {
-                            mvwprintw(win, 6, 1, "(Editing) Notes: %s_", contact.notes);
-                        }
-                        else {
-                            mvwprintw(win, 6, 1, "Notes: %s", contact.notes);
+                        ;
+                        /* Displaying Notes */
+                        char* display_string_notes = construct_field_display_string("Notes", contact.notes, editing_index == 5, editing_cursor);
+                        mvwprintw(win, 6, 1, "%s", display_string_notes);
+                        if (display_string_notes) {
+                            free(display_string_notes);
                         }
                         break;
                 }
+
             }
 
             wattroff(win, A_STANDOUT);
@@ -172,7 +193,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     }
                     break;
                 default:
-                    if ((int)strlen(edited_value) < LINESIZE) {
+                    if ((int)strlen(edited_value) < LINESIZE && isalnum(ch)) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = ' ';
@@ -299,7 +320,13 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
         wrefresh(win);
 
 
-        mvwprintw(winOutput, 1, 1, "Cursor: %d", highlight + start_contact);
+        int cur = highlight + start_contact;
+        mvwprintw(winOutput, 0, 1, "Press enter to select/edit");
+        mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s, Address %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone,contacts[cur].address);
+        mvwprintw(winOutput, 2, 2, "Press a to add a new contact");
+        mvwprintw(winOutput, 3, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
+
+        wrefresh(winOutput);
 
         /* render contacts */
         for (int i = start_contact; i < num_contacts && i < start_contact + LINES - 3; i++) {
@@ -345,7 +372,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                     highlight = 0;
                 }
 
-                
+
 
                 break;
             case 10: /* Enter key */
@@ -353,7 +380,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 keypad(win, false);
                 keypad(winContacts, true);
                 refresh();
-                display_contact(winContacts, contacts[start_contact + highlight], filepath);
+                display_contact(winContacts, contacts[start_contact + highlight], filepath,winOutput);
 
                 num_contacts = readContacts(contacts, filepath);
 
