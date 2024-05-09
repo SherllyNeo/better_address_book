@@ -267,7 +267,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
 
 
 void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) {
-    WINDOW *win, *winContacts;
+    WINDOW *win, *winContacts, *winOutput;
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
@@ -280,6 +280,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     keypad(stdscr, TRUE); 
 
     win = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0); 
+    winOutput = newwin(offset_lines, COLS - offset_cols, LINES - offset_lines, 0);
     winContacts = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0);
 
     if (win == NULL || winContacts == NULL) {
@@ -291,7 +292,14 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
 
     while (1) {
         wclear(win);
+        wclear(winOutput);
         box(win, 0, 0);
+        box(winOutput, 0, 0);
+        wrefresh(winOutput);
+        wrefresh(win);
+
+
+        mvwprintw(winOutput, 1, 1, "Cursor: %d", highlight + start_contact);
 
         /* render contacts */
         for (int i = start_contact; i < num_contacts && i < start_contact + LINES - 3; i++) {
@@ -311,9 +319,8 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             case 'k':
                 highlight--;
                 if (start_contact == 0 && highlight < 0) {
-                    /* if we scroll up at the top, set to the end */
-                    highlight = LINES - offset_lines - 2;
-                    start_contact = num_contacts - highlight - 1;
+                    highlight = 0;
+                    start_contact = 0;
                 }
                 if (highlight < 0) {
                     highlight = 0;
@@ -362,6 +369,8 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 ;
                 char* search_string = "edit4";
                 num_contacts = searchContacts(contacts,num_contacts, search_string);
+                highlight = 0;
+                start_contact = 0;
                 break;
             case 'a':
                 ;
