@@ -7,7 +7,7 @@
 #define Phone 100
 #define Address 500
 #define Notes 500
-#define MAX_CONTACTS 5000
+#define MAX_CONTACTS 2000
 #define LINESIZE (FirstName + LastName + Email + Phone + Address + Notes)*2
 
 

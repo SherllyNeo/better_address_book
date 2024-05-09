@@ -24,17 +24,42 @@ int writeLine(Contact contact, char* filepath, int line) {
         return 1;
     }
 
-    int currentLine = 1;
-    char buffer[LINESIZE] = { 0 };
-    while (currentLine < line && fgets(buffer, sizeof(char)*LINESIZE, file) != NULL) {
-        currentLine++;
+    FILE *temp = fopen("temp.txt","w");
+    if (temp == NULL) {
+        fprintf(stderr,"Error creating temporary file");
+        fclose(file);
+        return 1;
     }
 
-    fprintf(file, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+    char buffer[LINESIZE] = { 0 };
+
+    for (int i = 1; i < line; ++i) {
+        if (fgets(buffer, sizeof(buffer), file) == NULL) {
+            fprintf(stderr, "Error: Line %d does not exist in the file.\n", line);
+            fclose(file);
+            fclose(temp);
+            return 1;
+        }
+        fputs(buffer, temp);
+    }
+
+    fprintf(temp, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
             contact.first_name, contact.last_name, contact.email,
             contact.phone, contact.address, contact.notes);
 
+    /* skip a line */
+    fgets(buffer, sizeof(buffer), file);
+
+    while (fgets(buffer, sizeof(buffer), file) != NULL) {
+        fputs(buffer, temp);
+    }
+
     fclose(file);
+    if (rename("temp.txt",filepath)) {
+        fprintf(stderr, "unable to copy over from tmp file\n");
+    }
+
+    fclose(temp);
 
     return 0;
 }
@@ -124,23 +149,23 @@ int editLine(Contact contact,char* filepath, int line) {
 
     /* check for emtpy */
     if (strlen(contact.first_name) <= 0) {
-        strncpy(contact.first_name," \0",2);
+        return ERR_FILE;
     }
     if (strlen(contact.last_name) <= 0) {
-        strncpy(contact.last_name," \0",2);
+        return ERR_FILE;
     }
     if (strlen(contact.email) <= 0) {
-        strncpy(contact.email," \0",2); 
+        return ERR_FILE;
     }
 
     if (strlen(contact.phone) <= 0) {
-        strncpy(contact.phone," \0",2); 
+        return ERR_FILE;
     }
     if (strlen(contact.address) <= 0) {
-        strncpy(contact.address," \0",2); 
+        return ERR_FILE;
     }
     if (strlen(contact.notes) <= 0) {
-        strncpy(contact.notes," \0",2); 
+        return ERR_FILE;
     }
 
 
