@@ -41,6 +41,30 @@ int construct_field_display_string(char display_string[],size_t size,char* field
     return 0;
 }
 
+int construct_finding_string(char finding_string[],size_t size, char* search_term, int editing_cursor) {
+    int len = strlen(search_term);
+    memset(finding_string,0,(size+1)*sizeof(char));
+
+    sprintf(finding_string, "Searching: ");
+    /* Insert cursor underscore at the correct position */
+    if (editing_cursor <= 0) {
+        strcat(finding_string, "_");
+        strcat(finding_string, search_term);
+    } else if (editing_cursor >= len) {
+        strcat(finding_string, search_term);
+        strcat(finding_string, "_");
+    } else {
+        strncat(finding_string, search_term, editing_cursor);
+        strcat(finding_string, "_");
+        strcat(finding_string, search_term + editing_cursor);
+    }
+
+
+    finding_string[size + 1] = '\0';
+
+    return 0;
+}
+
 
 void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOutput) {
     int highlight = 0;
@@ -313,6 +337,9 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int offset_lines = 7;
     int offset_cols = 2;
     int finding = false;
+    char finding_value[LINESIZE] = { 0 };
+    int finding_cursor = -1;
+
 
     initscr();
     cbreak(); 
@@ -339,12 +366,27 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
         wrefresh(win);
 
 
-        int cur = highlight + start_contact;
-        mvwprintw(winOutput, 0, 1, "Press enter to select/edit");
-        mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone);
-        mvwprintw(winOutput, 2, 1, "Address %s",contacts[cur].address);
-        mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
-        mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
+        if (!finding) {
+            int cur = highlight + start_contact;
+            mvwprintw(winOutput, 0, 1, "Press enter to select/edit");
+            mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone);
+            mvwprintw(winOutput, 2, 1, "Address %s",contacts[cur].address);
+            mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
+            mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
+            mvwprintw(winOutput, 6, 2, "Press f to find a contact");
+        }
+        else {
+            mvwprintw(winOutput, 0, 1, "Searching (Found %d)",num_contacts);
+
+
+            size_t size_fn = snprintf(NULL, 0, "(Searching): %s",finding_value);
+            char display_string_search[size_fn + 1]; 
+            int failed_to_generate_string_for_search = construct_finding_string(display_string_search, size_fn, finding_value, finding_cursor);
+            if (failed_to_generate_string_for_search) {
+                fprintf(stderr, "Failed to generate string for search term\n");
+            }
+            mvwprintw(winOutput, 1, 1, "%s", display_string_search);
+        }
 
         wrefresh(winOutput);
 
@@ -361,90 +403,148 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
 
 
         /* process user input */
-        switch(choice) {
-            case KEY_UP:
-            case 'k':
-                highlight--;
-                if (start_contact == 0 && highlight < 0) {
-                    highlight = 0;
-                    start_contact = 0;
-                }
-                if (highlight < 0) {
-                    highlight = 0;
-                    if (start_contact > 0) {
-                        start_contact--; 
+        if (finding) {
+            wrefresh(win);
+
+            switch(choice) {
+                case KEY_RIGHT:
+                    finding_cursor++;
+                    if (finding_cursor > (int)strlen(finding_value)) {
+                        finding_cursor = strlen(finding_value);
                     }
-                }
-                break;
-            case KEY_DOWN:
-            case 'j':
-                ;
-                int cursor = start_contact + highlight;
-                if (cursor < num_contacts - 1) {
-                    highlight++;
-                    if (cursor >= LINES - offset_lines - 2) {
-                        start_contact++;
-                        highlight--;
+                    break;
+                case KEY_LEFT:
+                    finding_cursor--;
+                    if (finding_cursor < 0) {
+                        finding_cursor = 0;
                     }
-                }
-                else {
-                    start_contact = 0;
-                    highlight = 0;
-                }
-
-
-
-                break;
-            case 10: /* Enter key */
-            case 'l':
-                finding = false;
-                keypad(win, false);
-                keypad(winContacts, true);
-                refresh();
-                display_contact(winContacts, contacts[start_contact + highlight], filepath,winOutput);
-
-                num_contacts = readContacts(contacts, filepath);
-
-                wclear(win);
-                wclear(winContacts);
-                keypad(win, true);
-                wrefresh(win);
-                break;
-            case 'q':
-                endwin();
-                return;
-            case 'f':
-                ;
-                if (!finding) {
-                    finding = true;
-                    char* search_string = "will";
-                    num_contacts = searchContacts(contacts,num_contacts, search_string);
-                    highlight = 0;
-                    start_contact = 0;
-                }
-                else {
+                    break;
+                case 'f':
+                    /* stop finding and refresh */
                     finding = false;
+                    finding_cursor = -1;
+
                     /* re-read contacts */
                     num_contacts = readContacts(contacts, filepath);
-                }
-                break;
-            case 'a':
-                ;
-                Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
-                appendLine(default_contact, filepath);
 
-                /* re-read contacts */
-                num_contacts = readContacts(contacts, filepath);
+                    break;
+                case 10:
+                    /* stop finding */
+                    finding = false;
+                    finding_cursor = -1;
+
+                    if (strlen(finding_value) <= 0) {
+                        num_contacts = readContacts(contacts,filepath);
+                    }
+
+                    break;
+                case KEY_BACKSPACE:
+                    /* When backspacing, we have to decriment the position of each value after the cursor */
+                    if ((int)strlen(finding_value) > 0 && finding_value[0] != '\0') {
+                        for (int i = finding_cursor; i < (int)strlen(finding_value); i++) {
+                            finding_value[i-1] = finding_value[i];
+                        }
+                        finding_value[strlen(finding_value) - 1] = '\0';
+                        finding_cursor--;
+                    }
+                    break;
+                default:
+                    if ((int)strlen(finding_value) < CHARWIDTH && (isalnum(choice) || choice == ' ' || choice == '\t' || choice == '\n' || choice == '.'|| choice == '@' || choice == ',' || choice == '\'' ) ) {
+
+                        char new_value[LINESIZE] = { 0 };
+                        strncpy(new_value, finding_value, finding_cursor);
+                        new_value[finding_cursor] = choice; 
+                        new_value[finding_cursor + 1] = '\0';
+                        strncat(new_value, finding_value + finding_cursor, LINESIZE - strlen(new_value) - 1); 
+                        strcpy(finding_value, new_value);
+
+                        finding_cursor++;
+                        if (strlen(finding_value) > 0 ) {
+                            /* have to reread when searching */
+                            num_contacts = readContacts(contacts,filepath);
+                            num_contacts = searchContacts(contacts,num_contacts, finding_value);
+                        }
+                        highlight = 0;
+                        start_contact = 0;
+                    }
+                    break;
+            }
+        }
+        else {
+            switch(choice) {
+                case KEY_UP:
+                case 'k':
+                    highlight--;
+                    if (start_contact == 0 && highlight < 0) {
+                        highlight = 0;
+                        start_contact = 0;
+                    }
+                    if (highlight < 0) {
+                        highlight = 0;
+                        if (start_contact > 0) {
+                            start_contact--; 
+                        }
+                    }
+                    break;
+                case KEY_DOWN:
+                case 'j':
+                    ;
+                    int cursor = start_contact + highlight;
+                    if (cursor < num_contacts - 1) {
+                        highlight++;
+                        if (cursor >= LINES - offset_lines - 2) {
+                            start_contact++;
+                            highlight--;
+                        }
+                    }
+                    else {
+                        start_contact = 0;
+                        highlight = 0;
+                    }
 
 
-                break;
-            case 'd':
-                deleteContact(start_contact + highlight,filepath);
 
-                /* re-read contacts */
-                num_contacts = readContacts(contacts, filepath);
+                    break;
+                case 10: /* Enter key */
+                case 'l':
+                    finding = false;
+                    keypad(win, false);
+                    keypad(winContacts, true);
+                    refresh();
+                    display_contact(winContacts, contacts[start_contact + highlight], filepath,winOutput);
 
-                break;
+                    num_contacts = readContacts(contacts, filepath);
+
+                    wclear(win);
+                    wclear(winContacts);
+                    keypad(win, true);
+                    wrefresh(win);
+                    break;
+                case 'q':
+                    endwin();
+                    return;
+                case 'f':
+                    ;
+                    finding = true;
+                    finding_cursor = strlen(finding_value);
+                    break;
+                case 'a':
+                    ;
+                    Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
+                    appendLine(default_contact, filepath);
+
+                    /* re-read contacts */
+                    num_contacts = readContacts(contacts, filepath);
+
+
+                    break;
+                case 'd':
+                    deleteContact(start_contact + highlight,filepath);
+
+                    /* re-read contacts */
+                    num_contacts = readContacts(contacts, filepath);
+                    break;
+            }
         }
         wrefresh(win);
     }
