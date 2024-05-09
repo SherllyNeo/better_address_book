@@ -37,6 +37,8 @@ char help[] = "-a or --add to add a new contact \n \
                --field to specify fields to show when using -f\n \
                -i or --inspect to inspect a specific contact by index\n \
                -e or --edit to edit a specific contact by index\n \
+               \n \
+               acceptable fields are: first_name, last_name, email, phone, address, notes and index\n \
                ";
 
 typedef enum {
@@ -216,10 +218,35 @@ int main(int argc, char *argv[])
             else {
                 printf("[+] found %d matches\n",number_of_matches);
             }
+            
+
             for (int i = 0; i < number_of_matches; i++) {
-                printContact(contacts[i]);
-                if (field) {
-                    printf("TODO: show just the relevant fields\n");
+                if (field == NULL) {
+                    printf("%s %s <%s>\n",contacts[i].first_name,contacts[i].last_name,contacts[i].email);
+                }
+                else {
+                    if (strstr(field, "index")) {
+                        printf("%d ",contacts[i].index);
+                    }
+                    if (strstr(field, "first_name")) {
+                        printf("%s ",contacts[i].first_name);
+                    }
+                    if (strstr(field, "last_name")) {
+                        printf("%s ",contacts[i].last_name);
+                    }
+                    if (strstr(field, "email")) {
+                        printf("%s ",contacts[i].email);
+                    }
+                    if (strstr(field, "phone")) {
+                        printf("%s ",contacts[i].email);
+                    }
+                    if (strstr(field, "address")) {
+                        printf("%s ",contacts[i].address);
+                    }
+                    if (strstr(field, "notes")) {
+                        printf("%s ",contacts[i].address);
+                    }
+                    printf("\n");
                 }
             }
             return 0;

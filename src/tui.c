@@ -334,6 +334,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int start_contact = 0; // Index of the first contact to display
     int choice;
     int offset_lines = 10;
+    int gap = 1;
     int offset_cols = 2;
     int finding = false;
     char finding_value[LINESIZE] = { 0 };
@@ -346,7 +347,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     keypad(stdscr, TRUE); 
 
     win = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0); 
-    winOutput = newwin(offset_lines, COLS - offset_cols, LINES - offset_lines, 0);
+    winOutput = newwin(offset_lines, COLS - offset_cols, LINES - offset_lines + gap, 0);
     winContacts = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0);
 
     if (win == NULL || winContacts == NULL) {
@@ -369,12 +370,12 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             int cur = highlight + start_contact;
             mvwprintw(winOutput, 0, 1, "Press enter to select/edit");
             mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone);
-            mvwprintw(winOutput, 2, 1, "Address %s",contacts[cur].address);
+            mvwprintw(winOutput, 2, 1, "Address: %s",contacts[cur].address);
             mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
             mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
             mvwprintw(winOutput, 6, 2, "Press f to find a contact");
             mvwprintw(winOutput, 8, 1, "number of contacts: %d",num_contacts);
-            mvwprintw(winOutput, 9, 1, "Babook");
+            mvwprintw(winOutput, 8, COLS - offset_cols - 6, "Babook");
         }
         else {
             mvwprintw(winOutput, 0, 1, "Searching (Found %d)",num_contacts);
@@ -392,8 +393,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
 
         wrefresh(winOutput);
 
-        /* render contacts */
-        for (int i = start_contact; i < num_contacts && i < start_contact + LINES - 3; i++) {
+        for (int i = start_contact; i < num_contacts && i < (start_contact + LINES - 2); i++) {
             if (i == start_contact + highlight) {
                 wattron(win, A_STANDOUT);
             }

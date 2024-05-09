@@ -1,15 +1,37 @@
 # better_address_book
 A better address book written in C
 
+## Quickstart
 
-##
+first, clone the repo
+```bash
+git clone https://github.com/SherllyNeo/better_address_book.git
+```
+then 
+```bash
+cd better_address_book && make && make install 
+```
+and if you want an example 
+```bash
+cp example.babook.csv ~/.local/share/babook.csv
+```
 
-Currently unmained
+optionally, you can specify where you address book should be by setting the 
+```bash
+export ADDRESS_BOOK_PATH="/home/username/babook.csv"
+```
 
-TODO:
-* Remove all memory bugs
-* Add TUI searching
-* Add field specific searching to CLI
+If you run it without arguments
+```bash
+babook
+```
+it will throw you into the TUI interface
+
+![./images/tuimain.png]
+![./images/tuicontact.png]
+![./images/tuisearch.png]
+
+although it is often good to use the CLI interface for scripting
 
 ### Command line Useage
 
