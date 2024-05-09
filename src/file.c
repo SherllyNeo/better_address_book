@@ -17,41 +17,6 @@ bool CheckIfFileExists(char *filepath)
 }
 
 
-int writeLine_dep(Contact contact,char* filepath, int line) {
-    char** row = (char**)malloc(sizeof(char*) * 6);
-    row[0] = strdup(contact.first_name);
-    row[1] = strdup(contact.last_name);
-    row[2] = strdup(contact.email);
-    row[3] = strdup(contact.phone);
-    row[4] = strdup(contact.address);
-    row[5] = strdup(contact.notes);
-    row[6] = NULL;
-
-
-    DSV parsed_csv = dsvParseFile(filepath, ',');
-    if (!parsed_csv.valid) {
-        fprintf(stderr,"Unable to parse csv file to write line\n");
-        return ERR_FILE;
-    }
-
-    int insert_failed = dsvInsertRow(&parsed_csv, row, line);
-
-    if (insert_failed) {
-        fprintf(stderr,"unable to insert row\n");
-        return ERR_FILE;
-    }
-
-    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
-    if (write_failed) {
-        fprintf(stderr,"unable to write updated csv\n");
-        return ERR_FILE;
-    }
-
-    dsvFreeDSV(parsed_csv);
-
-    return 0; 
-}
-
 int writeLine(Contact contact, char* filepath, int line) {
     FILE *file = fopen(filepath, "r+");
     if (file == NULL) {
@@ -91,33 +56,6 @@ int appendLine(Contact contact, char* filepath) {
     return 0;
 }
 
-int appendLine_dep(Contact contact,char* filepath) {
-    char** row = (char**)malloc(sizeof(char*) * 6);
-    row[0] = strdup(contact.first_name);
-    row[1] = strdup(contact.last_name);
-    row[2] = strdup(contact.email);
-    row[3] = strdup(contact.phone);
-    row[4] = strdup(contact.address);
-    row[5] = strdup(contact.notes);
-    row[6] = NULL;
-
-    DSV parsed_csv = dsvParseFile(filepath, ',');
-    if (!parsed_csv.valid) {
-        fprintf(stderr,"Unable to parse csv file to write line\n");
-    }
-    int insert_failed = dsvInsertRow(&parsed_csv, row, parsed_csv.rows);
-    if (insert_failed) {
-        fprintf(stderr,"unable to insert row\n");
-    }
-    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
-    if (write_failed) {
-        fprintf(stderr,"unable to write updated csv\n");
-    }
-
-    dsvFreeDSV(parsed_csv);
-
-    return 0; 
-}
 
 int startsWithHeader(const char* filepath, const char* expectedHeader) {
     FILE* file = fopen(filepath, "r");
