@@ -72,7 +72,7 @@ acceptable fields are: first_name, last_name, email, phone, address, notes and i
 
 ```
 
-### Graphic Useage
+## Graphical Useage
 
 Vim keybindings for movement
 
