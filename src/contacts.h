@@ -4,7 +4,7 @@
 #include "shared.h"
 #include "contacts.c"
 
-Contact** searchContacts(Contact contacts[], int amount_of_contacts, char* search_string, int* number_of_matches);
+int searchContacts(Contact contacts[], int amount_of_contacts, char* search_string);
 
 int deleteContact(int index, char* filepath);
 

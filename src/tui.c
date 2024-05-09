@@ -358,6 +358,11 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             case 'q':
                 endwin();
                 return;
+            case 'f':
+                ;
+                char* search_string = "edit4";
+                num_contacts = searchContacts(contacts,num_contacts, search_string);
+                break;
             case 'a':
                 ;
                 Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };

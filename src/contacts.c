@@ -26,30 +26,32 @@ char* caseInsensitiveStrStr(char* string, char* substring) {
     return strstr(string_copy,substring_copy);
 }
 
-Contact** searchContacts(Contact contacts[], int amount_of_contacts, char* search_string, int* number_of_matches) {
+/* Function to swap two contacts */
+void swapContacts(Contact *a, Contact *b) {
+    Contact temp;
+    memcpy(&temp, a, sizeof(Contact));
+    memcpy(a, b, sizeof(Contact));
+    memcpy(b, &temp, sizeof(Contact));
+}
 
-    Contact** matches = (Contact**)malloc(amount_of_contacts * sizeof(Contact*));
-    if (matches == NULL) {
-        printf("Memory allocation failed.\n");
-        *number_of_matches = 0;
-        return NULL;
-    }
-
-    int match_count = 0; 
-
+/* Function to search contacts and modify the array to only show matches */
+int searchContacts(Contact contacts[], int amount_of_contacts, char* search_string) {
+    int match_count = 0;
+    
     for (int i = 0; i < amount_of_contacts; i++) {
-        if (    caseInsensitiveStrStr(contacts[i].first_name, search_string) != NULL ||
-                caseInsensitiveStrStr(contacts[i].last_name, search_string) != NULL ||
-                caseInsensitiveStrStr(contacts[i].email, search_string) != NULL ||
-                caseInsensitiveStrStr(contacts[i].phone, search_string) != NULL ||
-                caseInsensitiveStrStr(contacts[i].address, search_string) != NULL) {
+        if (caseInsensitiveStrStr(contacts[i].first_name, search_string) != NULL ||
+            caseInsensitiveStrStr(contacts[i].last_name, search_string) != NULL ||
+            caseInsensitiveStrStr(contacts[i].email, search_string) != NULL ||
+            caseInsensitiveStrStr(contacts[i].phone, search_string) != NULL ||
+            caseInsensitiveStrStr(contacts[i].address, search_string) != NULL) {
 
-            matches[match_count++] = &contacts[i];
+            /* Move the matched contact to the beginning of the array */
+            swapContacts(&contacts[match_count], &contacts[i]);
+            match_count++;
         }
     }
 
-    *number_of_matches = match_count; /* C can do multiple returns */
-    return matches;
+    return match_count;
 }
 
 int deleteContact(int index, char* filepath) {

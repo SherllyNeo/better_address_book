@@ -208,8 +208,7 @@ int main(int argc, char *argv[])
             }
         }
         else if (mode == Find ) {
-            int number_of_matches = 0;
-            Contact** matches = searchContacts(contacts, count, target, &number_of_matches);
+            int number_of_matches = searchContacts(contacts, count, target);
 
             if (number_of_matches <= 0) {
                 printf("[-] No matches for %s\n",target);
@@ -218,12 +217,11 @@ int main(int argc, char *argv[])
                 printf("[+] found %d matches\n",number_of_matches);
             }
             for (int i = 0; i < number_of_matches; i++) {
-                printContact(*matches[i]);
+                printContact(contacts[i]);
                 if (field) {
                     printf("TODO: show just the relevant fields\n");
                 }
             }
-            free(matches);
             return 0;
         }
     }
