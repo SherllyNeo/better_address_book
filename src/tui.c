@@ -199,7 +199,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     }
                     break;
                 default:
-                    if ((int)strlen(edited_value) < LINESIZE && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ',' || ch == '\'' ) ) {
+                    if ((int)strlen(edited_value) < Notes && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ',' || ch == '\'' ) ) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = ' ';

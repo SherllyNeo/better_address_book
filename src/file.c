@@ -25,8 +25,8 @@ int writeLine(Contact contact, char* filepath, int line) {
     }
 
     int currentLine = 1;
-    char buffer[LINESIZE];
-    while (currentLine < line && fgets(buffer, sizeof(buffer), file) != NULL) {
+    char buffer[LINESIZE] = { 0 };
+    while (currentLine < line && fgets(buffer, sizeof(char)*LINESIZE, file) != NULL) {
         currentLine++;
     }
 
