@@ -25,10 +25,18 @@ A better address book written in C
 
 ### Graphic Useage
 
+Vim keybindings for movement
+
 #### Add new contact 
+Press a when highlighting the contact you'd like to delete
 #### Remove contact 
+Press d when highlighting the contact you'd like to delete
 #### Search contacts 
+Press f when on the contacts screen and type in a search term
 #### Edit contact fields
+Press enter or l on a contact to view it, then enter or l to edit a specific field
+
+You can use arrowkeys to move cursor within a string
 
 
 ### Technical notes
