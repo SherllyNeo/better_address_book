@@ -75,31 +75,6 @@ void printContact(Contact contact) {
     printf("Notes: %s\n\n", contact.notes);
 }
 
-int makeTemporaryCopy(char* sourcePath, char* tempPath) {
-    FILE *sourceFile = fopen(sourcePath, "r");
-    if (sourceFile == NULL) {
-        printf("Error opening source file.\n");
-        return 1;
-    }
-
-    FILE *tempFile = fopen(tempPath, "w");
-    if (tempFile == NULL) {
-        printf("Error creating temporary file.\n");
-        fclose(sourceFile);
-        return 1;
-    }
-
-    char buffer[LINESIZE*3];
-
-    while (fgets(buffer, sizeof(buffer), sourceFile) != NULL) {
-        fputs(buffer, tempFile);
-    }
-
-    fclose(sourceFile);
-    fclose(tempFile);
-
-    return 0;
-}
 
 int readContacts(Contact contacts[], char* filepath) {
 
@@ -112,7 +87,7 @@ int readContacts(Contact contacts[], char* filepath) {
         printf("file path is %s\n",filepath);
     }
 
-    int header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
+    //int header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
 
     DSV parsed_csv = dsvParseFile(filepath, ',');
     if (!parsed_csv.valid) {
@@ -120,12 +95,11 @@ int readContacts(Contact contacts[], char* filepath) {
         return 0;
     }
 
-    if (header) {
-        int delete_failed = dsvRemoveRow(&parsed_csv, 0);
-        if (delete_failed) {
-            fprintf(stderr, "unable to delete header\n");
-            return 0;
-        }
+    /* remove header row */
+    int delete_failed = dsvRemoveRow(&parsed_csv, 0);
+    if (delete_failed) {
+        fprintf(stderr, "unable to delete header\n");
+        return 0;
     }
 
     if (parsed_csv.rows >= MAX_CONTACTS) {

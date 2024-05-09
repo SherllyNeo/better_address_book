@@ -443,6 +443,7 @@ int dsvWriteFile(DSV parsed,char* filepath,char delim) {
     FILE* fp = fopen(filepath,"w");
     if (!fp) {
         fprintf(stderr,"DSV_FILE_ERR: unable to open file to write to %s\n",filepath);
+        return 1;
     }
     for (size_t i = 0; i < parsed.rows; i++) {
         for (size_t j = 0; j < parsed.cols; j++) {

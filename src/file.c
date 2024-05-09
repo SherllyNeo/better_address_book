@@ -96,28 +96,6 @@ int startsWithHeader(const char* filepath, const char* expectedHeader) {
 }
 
 
-
-
-int countLines(const char* filepath) {
-    FILE* file = fopen(filepath, "r");
-    if (file == NULL) {
-        printf("Error opening file.\n");
-        return -1; // Error opening file
-    }
-
-    int count = 0;
-    int ch;
-    while ((ch = fgetc(file)) != EOF) {
-        if (ch == '\n') {
-            count++;
-        }
-    }
-
-    fclose(file);
-    return count;
-}
-
-
 int deleteLine(char* filepath, int lineToDelete) {
 
     FILE *file = fopen(filepath, "r");
@@ -191,7 +169,7 @@ int editLine(Contact contact,char* filepath, int line) {
 
     /* write */
 
-    char** row = (char**)malloc(sizeof(char*) * 6);
+    char** row = (char**)malloc(sizeof(char*) * 7);
     row[0] = strdup(contact.first_name);
     row[1] = strdup(contact.last_name);
     row[2] = strdup(contact.email);
