@@ -1,5 +1,7 @@
 # better_address_book
-A better address book written in C
+A better address book written in C. 
+
+Vim keybindings and runs off of a simple csv.
 
 ## Quickstart
 
