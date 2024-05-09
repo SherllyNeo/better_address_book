@@ -89,7 +89,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                 mvwprintw(winOutput, 2, 1, "Cannot be empty");
             }
             else {
-                mvwprintw(winOutput, 2, 1, "chaging to %s",edited_value);
+                mvwprintw(winOutput, 2, 1, "changing to \"%s\"",edited_value);
             }
         }
         else {
@@ -373,8 +373,8 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
             mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
             mvwprintw(winOutput, 6, 2, "Press f to find a contact");
-            mvwprintw(winOutput, 8, 2, "number of contacts: %d",num_contacts);
-            mvwprintw(winOutput, 9, 2, "Babook");
+            mvwprintw(winOutput, 8, 1, "number of contacts: %d",num_contacts);
+            mvwprintw(winOutput, 9, 1, "Babook");
         }
         else {
             mvwprintw(winOutput, 0, 1, "Searching (Found %d)",num_contacts);
