@@ -10,7 +10,7 @@
 char* caseInsensitiveStrStr(char* string, char* substring) {
 
     char string_copy[strlen(string)+1];
-    char substring_copy[strlen(string)+1];
+    char substring_copy[strlen(substring)+1];
 
     strncpy(string_copy,string,(strlen(string)+1)*sizeof(char));
     strncpy(substring_copy,substring,(strlen(substring)+1)*sizeof(char));
@@ -20,7 +20,6 @@ char* caseInsensitiveStrStr(char* string, char* substring) {
     }
     for (int i = 0; i<(int)strlen(substring_copy); i++) {
         substring_copy[i] = toupper(substring_copy[i]);
-
     }
 
     return strstr(string_copy,substring_copy);
