@@ -30,7 +30,7 @@ babook
 it will throw you into the TUI interface
 
 ### view all contacts
-- view all contacts, with the ability to add and delete them with a summary at the bottom
+- view all contacts, with the ability to add and delete them with a summary at the bottom (Screenshot shows a bunch of duplicate contacts as I was testing scrolling)
 
 ![tui display](./images/tuicontacts.png)
 
