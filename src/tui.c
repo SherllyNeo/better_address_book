@@ -138,7 +138,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
             switch(ch) {
                 case KEY_RIGHT:
                     editing_cursor++;
-                    if (editing_cursor > strlen(edited_value)) {
+                    if (editing_cursor > (int)strlen(edited_value)) {
                         editing_cursor = strlen(edited_value);
                     }
                     break;
@@ -153,7 +153,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     editing_index = -1;
                     editing_cursor = -1;
 
-                    if (strlen(edited_value) <= 0) {
+                    if ((int)strlen(edited_value) <= 0) {
                         edited_value[0] = ' ';
                         edited_value[1] = '\0';
                     }
@@ -163,8 +163,8 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     break;
                 case KEY_BACKSPACE:
                     /* When backspacing, we have to decriment the position of each value after the cursor */
-                    if (strlen(edited_value) > 0 && edited_value[0] != '\0') {
-                        for (int i = editing_cursor; i < strlen(edited_value); i++) {
+                    if ((int)strlen(edited_value) > 0 && edited_value[0] != '\0') {
+                        for (int i = editing_cursor; i < (int)strlen(edited_value); i++) {
                             edited_value[i-1] = edited_value[i];
                         }
                         edited_value[strlen(edited_value) - 1] = '\0';
@@ -172,7 +172,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
                     }
                     break;
                 default:
-                    if (strlen(edited_value) < LINESIZE) {
+                    if ((int)strlen(edited_value) < LINESIZE) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = ' ';
@@ -267,7 +267,6 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
 
 
 void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) {
-    FILE* fp = fopen("logger.txt","a");
     WINDOW *win, *winContacts;
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
@@ -327,7 +326,6 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             case 'j':
                 ;
                 int cursor = start_contact + highlight;
-                int end_contact = num_contacts;
                 if (cursor < num_contacts - 1) {
                     highlight++;
                     if (cursor >= LINES - offset_lines - 2) {

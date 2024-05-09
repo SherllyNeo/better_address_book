@@ -141,23 +141,23 @@ int readContacts(Contact contacts[], char* filepath) {
         contacts[row].index = row;
 
         if (strlen(contacts[row].first_name) <= 0) {
-            strncpy(contacts[row].first_name," ",1);
+            strncpy(contacts[row].first_name," \0",2);
         }
         if (strlen(contacts[row].last_name) <= 0) {
-            strncpy(contacts[row].last_name," ",1);
+            strncpy(contacts[row].last_name," \0",2);
         }
         if (strlen(contacts[row].email) <= 0) {
-            strncpy(contacts[row].email," ",1); 
+            strncpy(contacts[row].email," \0",2); 
         }
 
         if (strlen(contacts[row].phone) <= 0) {
-            strncpy(contacts[row].phone," ",1); 
+            strncpy(contacts[row].phone," \0",2); 
         }
         if (strlen(contacts[row].address) <= 0) {
-            strncpy(contacts[row].address," ",1); 
+            strncpy(contacts[row].address," \0",2); 
         }
         if (strlen(contacts[row].notes) <= 0) {
-            strncpy(contacts[row].notes," ",1); 
+            strncpy(contacts[row].notes," \0",2); 
         }
     }
 

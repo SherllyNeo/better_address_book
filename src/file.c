@@ -169,23 +169,23 @@ int editLine(Contact contact,char* filepath, int line) {
 
         /* check for emtpy */
         if (strlen(contact.first_name) <= 0) {
-            strncpy(contact.first_name," ",1);
+            strncpy(contact.first_name," \0",2);
         }
         if (strlen(contact.last_name) <= 0) {
-            strncpy(contact.last_name," ",1);
+            strncpy(contact.last_name," \0",2);
         }
         if (strlen(contact.email) <= 0) {
-            strncpy(contact.email," ",1); 
+            strncpy(contact.email," \0",2); 
         }
 
         if (strlen(contact.phone) <= 0) {
-            strncpy(contact.phone," ",1); 
+            strncpy(contact.phone," \0",2); 
         }
         if (strlen(contact.address) <= 0) {
-            strncpy(contact.address," ",1); 
+            strncpy(contact.address," \0",2); 
         }
         if (strlen(contact.notes) <= 0) {
-            strncpy(contact.notes," ",1); 
+            strncpy(contact.notes," \0",2); 
         }
 
 
