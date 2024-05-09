@@ -80,10 +80,8 @@ int readContacts(Contact contacts[], char* filepath) {
     int count = 0;
 
     if (filepath == NULL) {
-        printf("file path is null\n");
-    }
-    else {
-        printf("file path is %s\n",filepath);
+        fprintf(stderr, "file path is null\n");
+        return -1;
     }
 
     //int header = startsWithHeader(filepath, "\"firstName\",\"LastName\",\"email\",\"phone\",\"address\",\"notes\"\n");
