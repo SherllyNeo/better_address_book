@@ -62,9 +62,14 @@ although it is often good to use the CLI interface for scripting
 -a or --add to add a new contact
 -r or --remove to remove a contact by index
 -s or --show to show all contacts
--f or --find to find potential matches 
+-f or --find to find potential matches
 --field to specify fields to show when using -f
 -i or --inspect to inspect a specific contact by index
+-e or --edit to edit a specific contact by index
+
+acceptable fields are: first_name, last_name, email, phone, address, notes and index
+
+
 ```
 
 ### Graphic Useage
