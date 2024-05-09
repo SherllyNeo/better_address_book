@@ -17,7 +17,7 @@ bool CheckIfFileExists(char *filepath)
 }
 
 
-int writeLine(Contact contact,char* filepath, int line) {
+int writeLine_dep(Contact contact,char* filepath, int line) {
     char** row = (char**)malloc(sizeof(char*) * 6);
     row[0] = strdup(contact.first_name);
     row[1] = strdup(contact.last_name);
@@ -52,7 +52,46 @@ int writeLine(Contact contact,char* filepath, int line) {
     return 0; 
 }
 
-int appendLine(Contact contact,char* filepath) {
+int writeLine(Contact contact, char* filepath, int line) {
+    FILE *file = fopen(filepath, "r+");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    int currentLine = 1;
+    char buffer[LINESIZE];
+    while (currentLine < line && fgets(buffer, sizeof(buffer), file) != NULL) {
+        currentLine++;
+    }
+
+    fprintf(file, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+            contact.first_name, contact.last_name, contact.email,
+            contact.phone, contact.address, contact.notes);
+
+    fclose(file);
+
+    return 0;
+}
+
+int appendLine(Contact contact, char* filepath) {
+    FILE *file = fopen(filepath, "a");
+    if (file == NULL) {
+        perror("Error opening file");
+        return 1;
+    }
+
+
+    fprintf(file, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+            contact.first_name, contact.last_name, contact.email,
+            contact.phone, contact.address, contact.notes);
+
+    fclose(file);
+
+    return 0;
+}
+
+int appendLine_dep(Contact contact,char* filepath) {
     char** row = (char**)malloc(sizeof(char*) * 6);
     row[0] = strdup(contact.first_name);
     row[1] = strdup(contact.last_name);
@@ -166,51 +205,25 @@ int editLine(Contact contact,char* filepath, int line) {
             strncpy(contact.notes," \0",2); 
         }
 
+        /* delete */
+        int delete_failed = deleteLine(filepath, line + 2);
+        if (delete_failed) {
+            fprintf(stderr,"Failed to edit contact as unable to delete old line\n");
+            return 1;
+        }
+        else {
+            printf("[+] deleted old data\n");
+        }
 
     /* write */
-
-    char** row = (char**)malloc(sizeof(char*) * 7);
-    row[0] = strdup(contact.first_name);
-    row[1] = strdup(contact.last_name);
-    row[2] = strdup(contact.email);
-    row[3] = strdup(contact.phone);
-    row[4] = strdup(contact.address);
-    row[5] = strdup(contact.notes);
-    row[6] = NULL;
-
-
-    DSV parsed_csv = dsvParseFile(filepath, ',');
-    if (!parsed_csv.valid) {
-        fprintf(stderr,"Unable to parse csv file to write line\n");
-        return ERR_FILE;
-    }
-
-    int insert_failed = dsvInsertRow(&parsed_csv, row, line+2);
-
-    if (insert_failed) {
-        fprintf(stderr,"unable to insert row\n");
-        return ERR_FILE;
-    }
-
-    int write_failed = dsvWriteFile(parsed_csv,filepath, ',');
+    int write_failed = writeLine(contact,filepath, line + 2);
     if (write_failed) {
         fprintf(stderr,"unable to write updated csv\n");
         return ERR_FILE;
     }
 
     printf("[+] added new data\n");
-    /* delete */
 
-    int delete_failed = deleteLine(filepath, line + 1);
-    if (delete_failed) {
-        fprintf(stderr,"Failed to edit contact as unable to delete old line\n");
-        return 1;
-    }
-    else {
-        printf("[+] deleted old data\n");
-    }
-
-    dsvFreeDSV(parsed_csv);
 
     return 0;
 }
