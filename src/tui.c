@@ -75,6 +75,12 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
         if (editing_index != -1) {
             mvwprintw(winOutput, 0, 1, "press enter to save change");
             mvwprintw(winOutput, 1, 1, "Move cursor with arrow keys");
+            if ((int)strlen(edited_value) <= 0) {
+                mvwprintw(winOutput, 2, 1, "Cannot be empty");
+            }
+            else {
+                mvwprintw(winOutput, 2, 1, "chaging to %s",edited_value);
+            }
         }
         else {
             mvwprintw(winOutput, 0, 1, "press enter to edit a field");
@@ -171,13 +177,13 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     break;
                 case 10:
                     /* save */
+                    if ((int)strlen(edited_value) <= 0) {
+                        break;
+                    }
+
                     editing_index = -1;
                     editing_cursor = -1;
 
-                    if ((int)strlen(edited_value) <= 0) {
-                        edited_value[0] = ' ';
-                        edited_value[1] = '\0';
-                    }
 
 
                     editLine(contact, filepath, contact.index);
@@ -193,7 +199,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     }
                     break;
                 default:
-                    if ((int)strlen(edited_value) < LINESIZE && isalnum(ch)) {
+                    if ((int)strlen(edited_value) < LINESIZE && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' ) ) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = ' ';
