@@ -238,8 +238,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     if ((int)strlen(edited_value) < CHARWIDTH && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ',' || ch == '\'' ) ) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
-                            edited_value[0] = ' ';
-                            edited_value[1] = '\0';
+                            edited_value[0] = '\0';
                         }
 
                         char new_value[LINESIZE] = { 0 };
@@ -334,7 +333,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
-    int offset_lines = 7;
+    int offset_lines = 10;
     int offset_cols = 2;
     int finding = false;
     char finding_value[LINESIZE] = { 0 };
@@ -374,6 +373,8 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
             mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
             mvwprintw(winOutput, 6, 2, "Press f to find a contact");
+            mvwprintw(winOutput, 8, 2, "number of contacts: %d",num_contacts);
+            mvwprintw(winOutput, 9, 2, "Babook");
         }
         else {
             mvwprintw(winOutput, 0, 1, "Searching (Found %d)",num_contacts);
@@ -530,13 +531,13 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                     break;
                 case 'a':
                     ;
-                    Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
-                    appendLine(default_contact, filepath);
+                    if (num_contacts < MAX_CONTACTS - 5) {
+                        Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
+                        appendLine(default_contact, filepath);
 
-                    /* re-read contacts */
-                    num_contacts = readContacts(contacts, filepath);
-
-
+                        /* re-read contacts */
+                        num_contacts = readContacts(contacts, filepath);
+                    }
                     break;
                 case 'd':
                     deleteContact(start_contact + highlight,filepath);

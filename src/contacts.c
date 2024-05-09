@@ -38,10 +38,13 @@ int searchContacts(Contact contacts[], int amount_of_contacts, char* search_stri
     int match_count = 0;
     
     for (int i = 0; i < amount_of_contacts; i++) {
+        char index_as_str[10] = { 0 };
+        snprintf(index_as_str,10,"%d", contacts[i].index);
         if (caseInsensitiveStrStr(contacts[i].first_name, search_string) != NULL ||
             caseInsensitiveStrStr(contacts[i].last_name, search_string) != NULL ||
             caseInsensitiveStrStr(contacts[i].email, search_string) != NULL ||
             caseInsensitiveStrStr(contacts[i].phone, search_string) != NULL ||
+            caseInsensitiveStrStr(index_as_str, search_string) != NULL ||
             caseInsensitiveStrStr(contacts[i].address, search_string) != NULL) {
 
             /* Move the matched contact to the beginning of the array */
