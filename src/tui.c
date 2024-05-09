@@ -417,13 +417,15 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 ;
                 if (!finding) {
                     finding = true;
-                    char* search_string = "edit4";
+                    char* search_string = "will";
                     num_contacts = searchContacts(contacts,num_contacts, search_string);
                     highlight = 0;
                     start_contact = 0;
                 }
                 else {
                     finding = false;
+                    /* re-read contacts */
+                    num_contacts = readContacts(contacts, filepath);
                 }
                 break;
             case 'a':
