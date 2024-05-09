@@ -27,13 +27,20 @@ babook
 ```
 it will throw you into the TUI interface
 
-![./images/tuimain.png]
+### view all contacts
+- view all contacts, with the ability to add and delete them with a summary at the bottom
+![./images/tuicontacts.png]
+### view a single contacts
 ![./images/tuicontact.png]
+### edit a field
+![./images/tuiediting.png]
+### search all contacts 
+- can search by any field apart from notes, including index
 ![./images/tuisearch.png]
 
 although it is often good to use the CLI interface for scripting
 
-### Command line Useage
+## Command line Useage
 
 ```bash
   ____       _   _                 _       _     _
