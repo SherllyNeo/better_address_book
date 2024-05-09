@@ -270,7 +270,8 @@ void display_contact(WINDOW *win, Contact contact, char* filepath) {
 
 
 void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) {
-    WINDOW *win, *winContacts, *winNumber;
+    FILE* fp = fopen("logger.txt","a");
+    WINDOW *win, *winContacts;
     int highlight = 0;
     int start_contact = 0; // Index of the first contact to display
     int choice;
@@ -283,7 +284,6 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
     keypad(stdscr, TRUE); 
 
     win = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0); 
-    winNumber = newwin(offset_lines, offset_cols, LINES - offset_lines, COLS - offset_cols); 
     winContacts = newwin(LINES - offset_lines, COLS - offset_cols, 0, 0);
 
     if (win == NULL || winContacts == NULL) {
@@ -305,7 +305,6 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
             mvwprintw(win, i - start_contact + 1, 1, "%d. %s %s", contacts[i].index, contacts[i].first_name, contacts[i].last_name);
             wattroff(win, A_STANDOUT);
         }
-        mvwprintw(winNumber, (LINES - offset_lines) + 1, 1, "number of contacts: %d", num_contacts);
 
         choice = wgetch(win);
 
@@ -318,19 +317,30 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 if (highlight < 0) {
                     highlight = 0;
                     if (start_contact > 0) {
-                        start_contact--; // Scroll up
+                        start_contact--; 
                     }
                 }
                 break;
             case KEY_DOWN:
             case 'j':
-                highlight++;
-                if (highlight >= LINES - offset_lines || start_contact + highlight >= num_contacts ) {
-                    highlight = num_contacts - 1;
-                    if (start_contact + LINES - offset_lines < num_contacts) {
-                        start_contact++; 
+                ;
+                int cursor = start_contact + highlight;
+                int end_contact = num_contacts;
+                if (cursor < num_contacts - 1) {
+                    highlight++;
+                    if (cursor >= LINES - offset_lines - 2) {
+                        start_contact++;
+                        highlight--;
                     }
                 }
+                else {
+                    start_contact = 0;
+                    highlight = 0;
+                }
+
+                fprintf(fp,"DEBUG sc: %d, ec: %d, cur: %d, number of contacts: %d\n",start_contact,end_contact,cursor,num_contacts);
+                
+
                 break;
             case 10: /* Enter key */
             case 'l':
