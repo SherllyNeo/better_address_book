@@ -19,7 +19,6 @@ typedef struct {
     char address[Address];
     char notes[Notes];
     int index;
-
 } Contact;
 
 
