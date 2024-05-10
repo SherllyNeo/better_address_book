@@ -2,13 +2,11 @@
 
 #define PARSER
 
-
 #define ERR_FILE 10
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 char* read_source(char* filepath,size_t* size) {
     /* SLURP the whole file and return the string and the size */
@@ -23,21 +21,19 @@ char* read_source(char* filepath,size_t* size) {
     size_t end = ftell(fp);
     rewind(fp);
 
-    
     char* source = (char*)malloc(end+1);
-    memset(source,'\0',(end+1)*sizeof(char));
 
     if (!source) {
         fprintf(stderr, "DSV_ALLOC_ERR: Failed to allocate memory for file content %s\n",filepath);
         fclose(fp);
         return NULL;
     }
-    if (size == 0) {
-        fprintf(stderr, "DSV_FILE_ERR: failed to check size for file content %s\n",filepath);
+
+    if (end <= 0) {
+        fprintf(stderr, "DSV_FILE_ERR: Failed to find lenth of file content %s\n",filepath);
         fclose(fp);
         return NULL;
     }
-
 
     fread(source, 1, end, fp);
     fclose(fp);
@@ -98,8 +94,13 @@ char*** allocateContents(size_t rows, size_t cols, size_t strings_len) {
 size_t max_string_length(char** strings) {
     /* helper function to find the max size to allocate in an array */
     size_t max_length = 0;
+    size_t max_iter = 100;
 
     for (size_t i = 0; strings[i] != NULL; i++) {
+        if (i >= max_iter) {
+            fprintf(stderr, "DSV_USER_ERR: Ran for a %zu iterations without finding null termination in max_string_length... exiting\n",max_iter);
+            break;
+        }
         size_t length = strlen(strings[i]);
         if (length > max_length) {
             max_length = length;
@@ -201,8 +202,8 @@ DSV parse_source(char* source, size_t size, char delim) {
 
     /* assumptions of typical csv sizes */
     size_t rows_est = 5000;
-    size_t cols_est = 7;
-    size_t strings_len_est = 10000;
+    size_t cols_est = 100;
+    size_t strings_len_est = 1000;
     DSV returnVal = { NULL, 0, 0, false };
 
     returnVal.content = allocateContents(rows_est, cols_est, strings_len_est);
@@ -253,8 +254,12 @@ DSV parse_source(char* source, size_t size, char delim) {
         /* Grab current character */
         char current_char = source[i];
 
+        /* check if we need to add the next character literally, if it the next character exists " */
+        if (current_char == '\\' && (i < (size - 1))) {
+            returnVal.content[x][y][cur++] = source[++i];
+        }
         /* toggle escaping if we see " */
-        if (current_char == '"') {
+        else if (current_char == '"') {
             escaping = !escaping;
         }
         /* only parse below if we are not escaping */
@@ -273,8 +278,7 @@ DSV parse_source(char* source, size_t size, char delim) {
             cur = 0;
         } else {
             /* add to cell */
-            returnVal.content[x][y][cur] = current_char;
-            cur++;
+            returnVal.content[x][y][cur++] = current_char;
         }
     }
 
@@ -294,13 +298,11 @@ DSV parse_source(char* source, size_t size, char delim) {
 
 int dsvInsertRow(DSV *dsv, char** tmp_row, size_t position) {
 
-
     size_t max_size_of_string_in_tmp_row = max_string_length(tmp_row);
-
 
     /* insure position is in dsv, position will always be positive */
     if (position > dsv->rows) {
-        fprintf(stderr,"DSV_USR_ERR: position to try and insert row is out of bounds\n");
+        fprintf(stderr,"DSV_USR_ERR: position to try and insert row (%zu) is out of bounds (MAX: %zu)\n",position,dsv->rows);
         return 1;
     }
 
@@ -311,7 +313,7 @@ int dsvInsertRow(DSV *dsv, char** tmp_row, size_t position) {
         return 1;
     }
 
-    for (size_t i = 0; i < dsv->cols; i++) {
+    for (size_t i = 0; i<dsv->cols; i++) {
         row[i] = (char*)malloc(sizeof(char*)*max_size_of_string_in_tmp_row+1);
         if (!row[i]) {
             fprintf(stderr, "DSV_ALLOC_ERR: Unable to allocate memory for row[%zu]\n", i);
@@ -322,7 +324,7 @@ int dsvInsertRow(DSV *dsv, char** tmp_row, size_t position) {
             free(row);
             return 1;
         }
-        strncpy(row[i], tmp_row[i], max_size_of_string_in_tmp_row); 
+        strncpy(row[i], tmp_row[i],max_size_of_string_in_tmp_row); 
         row[i][max_size_of_string_in_tmp_row] = '\0';
     }
 
@@ -333,8 +335,17 @@ int dsvInsertRow(DSV *dsv, char** tmp_row, size_t position) {
 
 
 
+    /* Find the largest string out of all rows */
     size_t max_size_of_string_in_new_row = max_string_length(row);
-    char*** tmp = reallocContents(dsv->content, dsv->rows, dsv->cols, dsv->rows+1, dsv->cols,max_size_of_string_in_new_row);
+    size_t max_size_of_string_in_dsv = max_size_of_string_in_new_row;
+    for (size_t j = 0; j<dsv->rows; j++) {
+        size_t max_of_cur_row = max_string_length(dsv->content[j]);
+        if (max_of_cur_row > max_size_of_string_in_dsv) {
+            max_size_of_string_in_dsv = max_of_cur_row;
+        }
+    }
+
+    char*** tmp = reallocContents(dsv->content, dsv->rows, dsv->cols, dsv->rows+1, dsv->cols,max_size_of_string_in_dsv);
     if (!tmp) {
         fprintf(stderr, "DSV_ALLOC_ERR: Unable to reallocate memory for rows\n");
         dsv->valid = false;
@@ -342,7 +353,6 @@ int dsvInsertRow(DSV *dsv, char** tmp_row, size_t position) {
     }
     dsv->content = tmp;
     dsv->rows++;
-
 
     /* shift all rows */
     for (size_t i = dsv->rows - 1; i > position; i--) {
@@ -359,9 +369,10 @@ int dsvRemoveRow(DSV *dsv, size_t position) {
 
     /* insure position is in dsv, position will always be positive */
     if (position > dsv->rows) {
-        fprintf(stderr,"DSV_USR_ERR: position to try and delete row %zu is out of bounds. rows: %zu\n",position,dsv->rows);
+        fprintf(stderr,"DSV_USR_ERR: position to try and insert row (%zu) is out of bounds (MAX: %zu)\n",position,dsv->rows);
         return 1;
     }
+
      /* Free memory for the row being removed */
     for (size_t i = 0; i < dsv->cols; i++) {
         free(dsv->content[position][i]);
@@ -369,7 +380,7 @@ int dsvRemoveRow(DSV *dsv, size_t position) {
     free(dsv->content[position]);
 
     /* Shift subsequent rows up */
-    for (size_t i = position; i < (dsv->rows - 1); i++) {
+    for (size_t i = position; i < dsv->rows - 1; i++) {
         dsv->content[i] = dsv->content[i + 1];
     }
 
@@ -421,15 +432,13 @@ DSV dsvParseFile(char* filepath, char delim) {
     size_t size = 0;
 
     char* source = read_source(filepath,&size);
-
     if (!source) {
         fprintf(stderr, "DSV_FILE_ERR: failed to read %s\n",filepath);
         exit(ERR_FILE);
     }
 
-    /* this will free source */
+    /* this function frees source */
     returnVal = parse_source(source,size,delim);
-
     if (!returnVal.valid || returnVal.rows == 0 || returnVal.cols == 0) {
         fprintf(stderr, "DSV_FILE_ERR: failed to read %s\n",filepath);
         return returnVal;
@@ -443,7 +452,6 @@ int dsvWriteFile(DSV parsed,char* filepath,char delim) {
     FILE* fp = fopen(filepath,"w");
     if (!fp) {
         fprintf(stderr,"DSV_FILE_ERR: unable to open file to write to %s\n",filepath);
-        return 1;
     }
     for (size_t i = 0; i < parsed.rows; i++) {
         for (size_t j = 0; j < parsed.cols; j++) {
@@ -461,3 +469,4 @@ int dsvWriteFile(DSV parsed,char* filepath,char delim) {
 }
 
 #endif
+
