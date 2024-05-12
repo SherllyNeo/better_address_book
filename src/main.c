@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                 printContact(chosen_contact);
             }   
             else {
-                fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3");
+                fprintf(stderr,"Must supply index to inspect, example:\nbabook -i 3\n");
                 return ERR_ARGS;
             }
         }
