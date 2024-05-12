@@ -121,7 +121,6 @@ int main(int argc, char *argv[])
             }
             else if (!strcmp("--field",arg)) {
                 field = argv[++i];
-                mode = Edit;
             }
         }
 
@@ -167,7 +166,7 @@ int main(int argc, char *argv[])
                 }
             }   
             else {
-                fprintf(stderr,"Must supply index to inspect, example:\nbabook -e 3");
+                fprintf(stderr,"Must supply index to inspect, example:\nbabook -e 3\n");
                 return ERR_ARGS;
             }
         }
@@ -186,7 +185,7 @@ int main(int argc, char *argv[])
                 }
             }   
             else {
-                fprintf(stderr,"Must supply index to inspect, example:\nbabook -r 3");
+                fprintf(stderr,"Must supply index to inspect, example:\nbabook -r 3\n");
                 return ERR_ARGS;
             }
         }
