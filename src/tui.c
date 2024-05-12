@@ -369,8 +369,9 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
         if (!finding) {
             int cur = highlight + start_contact;
             mvwprintw(winOutput, 0, 1, "Press enter to select/edit");
-            mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s, Phone: %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email,contacts[cur].phone);
-            mvwprintw(winOutput, 2, 1, "Address: %s",contacts[cur].address);
+            mvwprintw(winOutput, 1, 1, "Name: %s %s, Email: %s",contacts[cur].first_name,contacts[cur].last_name,contacts[cur].email);
+            mvwprintw(winOutput, 2, 1, "Phone: %s",contacts[cur].phone);
+            mvwprintw(winOutput, 3, 1, "Address: %s",contacts[cur].address);
             mvwprintw(winOutput, 4, 2, "Press a to add a new contact");
             mvwprintw(winOutput, 5, 2, "Press d to delete %s %s",contacts[cur].first_name,contacts[cur].last_name);
             mvwprintw(winOutput, 6, 2, "Press f to find a contact");
@@ -533,7 +534,7 @@ void tui_display_contacts(Contact contacts[], int num_contacts, char* filepath) 
                 case 'a':
                     ;
                     if (num_contacts < MAX_CONTACTS - 5) {
-                        Contact default_contact = { "tmpFirstName", "tmpLastName", "example@email.com", "+44 38383","123 St Avenue, 11221","notes here", num_contacts };
+                        Contact default_contact = { "FirstName", "LastName", "example@email.com", "+1 12345","123 St Avenue, 11221","notes here", num_contacts };
                         appendLine(default_contact, filepath);
 
                         /* re-read contacts */
