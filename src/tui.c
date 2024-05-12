@@ -235,7 +235,10 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     }
                     break;
                 default:
-                    if ((int)strlen(edited_value) < CHARWIDTH && (isalnum(ch) || ch == ' ' || ch == '\t' || ch == '\n' || ch == '.'|| ch == '@' || ch == ',' || ch == '\'' ) ) {
+                    ;
+                    char* allowed_chars = " \t\n.@,+-_#()&^%$3\"!*=`\\><'";
+                    if ((int)strlen(edited_value) < CHARWIDTH && 
+                            (isalnum(ch) || strchr(allowed_chars,ch) != NULL)) {
 
                         if (editing_cursor <= 0 && edited_value[0] == '\0') {
                             edited_value[0] = '\0';
