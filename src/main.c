@@ -75,7 +75,6 @@ int main(int argc, char *argv[])
         initBook(address_book_path);
     }
 
-    printf("%s\n",banner);
 
 
 
@@ -138,6 +137,7 @@ int main(int argc, char *argv[])
         }
 
         if (mode == Show) {
+            printf("%s\n",banner);
             for (int i = 0; i<count; i++) {
                 printContact(contacts[i]);
             }
@@ -152,6 +152,7 @@ int main(int argc, char *argv[])
             }
         }
         else if (mode == Edit ) {
+            printf("%s\n",banner);
             if (index != -1) {
                 printf("editing...\n");
                 printContact(chosen_contact);
@@ -171,6 +172,7 @@ int main(int argc, char *argv[])
             }
         }
         else if (mode == Remove ) {
+            printf("%s\n",banner);
             if (index != -1) {
                 printf("removing...\n");
                 printContact(chosen_contact);
@@ -190,6 +192,7 @@ int main(int argc, char *argv[])
             }
         }
         else if (mode == Add ) {
+            printf("%s\n",banner);
             Contact contact = { 0 };
             int failed_to_init_contact = initContact(&contact);
             if (failed_to_init_contact) {
@@ -215,7 +218,8 @@ int main(int argc, char *argv[])
                 printf("[-] No matches for %s\n",target);
             }
             else {
-                printf("[+] found %d matches\n",number_of_matches);
+                /* maybe add in optionally later */
+                //printf("[+] found %d matches\n",number_of_matches);
             }
             
 
