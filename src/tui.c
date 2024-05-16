@@ -70,6 +70,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
     int highlight = 0;
     int num_properties = 6;
     int ch;
+    int confirmed = 0;
     char edited_value[LINESIZE] = { 0 };
     int editing_index = -1;
     int editing_cursor = -1;
@@ -83,17 +84,24 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
         wrefresh(win);
 
         if (editing_index != -1) {
-            mvwprintw(winOutput, 0, 1, "press enter to save change");
+            mvwprintw(winOutput, 0, 1, "press ENTER to save change, escape to exit editing without saving, Q to quit");
             mvwprintw(winOutput, 1, 1, "Move cursor with arrow keys");
             if ((int)strlen(edited_value) <= 0) {
                 mvwprintw(winOutput, 2, 1, "Cannot be empty");
             }
             else {
                 mvwprintw(winOutput, 2, 1, "changing to \"%s\"",edited_value);
+                    /* Displaying First Name */
+                    size_t size_fn = snprintf(NULL, 0, "(Editing) %s: %s", "First name", contact.first_name);
+                    char display_string_first_name[size_fn + 1]; 
+                    int failed_to_generate_string_for_first_name = construct_field_display_string(display_string_first_name, size_fn, "First Name", contact.first_name, editing_index == 0, editing_cursor);
+                    if (failed_to_generate_string_for_first_name) {
+                        fprintf(stderr, "Failed to generate string for first name");
+                    }
             }
         }
         else {
-            mvwprintw(winOutput, 0, 1, "press enter to edit a field");
+            mvwprintw(winOutput, 0, 1, "press ENTER to edit a field");
         }
 
         wrefresh(winOutput);
@@ -102,15 +110,92 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                 wattron(win, A_STANDOUT);
             }
 
-            /* print lines */
+            char display_first_name[CHARWIDTH + 1] = { 0 };
+            char display_last_name[CHARWIDTH + 1] = { 0 };
+            char display_email[CHARWIDTH + 1] = { 0 };
+            char display_phone[CHARWIDTH + 1] = { 0 };
+            char display_address[CHARWIDTH + 1] = { 0 };
+            char display_notes[CHARWIDTH + 1] = { 0 };
+
+            strncpy(display_first_name,contact.first_name,CHARWIDTH);
+            display_first_name[CHARWIDTH] = '\0';
+
+            strncpy(display_last_name,contact.last_name,CHARWIDTH);
+            display_last_name[CHARWIDTH] = '\0';
+
+            strncpy(display_email,contact.email,CHARWIDTH);
+            display_email[CHARWIDTH] = '\0';
+
+            strncpy(display_phone,contact.phone,CHARWIDTH);
+            display_phone[CHARWIDTH] = '\0';
+
+            strncpy(display_address,contact.address,CHARWIDTH);
+            display_address[CHARWIDTH] = '\0';
+
+            strncpy(display_notes,contact.notes,CHARWIDTH);
+            display_notes[CHARWIDTH] = '\0';
+
+            if (editing_index >= 0) {
+
+                switch (highlight) {
+                    case 0:
+                        ;
+                        {
+                            strncpy(display_first_name,edited_value,CHARWIDTH);
+                            display_first_name[CHARWIDTH] = '\0';
+                            break;
+                        }
+
+                    case 1:
+                        ;
+                        {
+                            strncpy(display_last_name,edited_value,CHARWIDTH);
+                            display_last_name[CHARWIDTH] = '\0';
+                            break;
+                        }
+
+                    case 2:
+                        ;
+                        {
+                            strncpy(display_email,edited_value,CHARWIDTH);
+                            display_email[CHARWIDTH] = '\0';
+                            break;
+                        }
+
+                    case 3:
+                        ;
+                        {
+                            strncpy(display_address,edited_value,CHARWIDTH);
+                            display_address[CHARWIDTH] = '\0';
+                            break;
+                        }
+                    case 4:
+                        ;
+                        {
+                            strncpy(display_phone,edited_value,CHARWIDTH);
+                            display_phone[CHARWIDTH] = '\0';
+                            break;
+                        }
+
+                    case 5:
+                        ;
+                        {
+                            strncpy(display_notes,edited_value,CHARWIDTH);
+                            display_notes[CHARWIDTH] = '\0';
+                            break;
+                        }
+                }
+            }
+
+            /* print lines  */
             switch (i) {
                 case 0:
                     ;
                     {
                     /* Displaying First Name */
-                    size_t size_fn = snprintf(NULL, 0, "(Editing) %s: %s", "First name", contact.first_name);
+                    size_t size_fn = snprintf(NULL, 0, "(Editing) %s: %s", "First name", display_first_name);
                     char display_string_first_name[size_fn + 1]; 
-                    int failed_to_generate_string_for_first_name = construct_field_display_string(display_string_first_name, size_fn, "First Name", contact.first_name, editing_index == 0, editing_cursor);
+                    int failed_to_generate_string_for_first_name = construct_field_display_string(display_string_first_name, size_fn, "First Name", display_first_name, editing_index == 0, editing_cursor);
                     if (failed_to_generate_string_for_first_name) {
                         fprintf(stderr, "Failed to generate string for first name");
                     }
@@ -122,9 +207,9 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     ;
                     {
                     /* Displaying Last Name */
-                    size_t size_ln = snprintf(NULL, 0, "(Editing) %s: %s", "Last Name", contact.last_name);
+                    size_t size_ln = snprintf(NULL, 0, "(Editing) %s: %s", "Last Name", display_last_name);
                     char display_string_last_name[size_ln + 1];
-                    int failed_to_generate_string_for_last_name = construct_field_display_string(display_string_last_name, size_ln, "Last Name", contact.last_name, editing_index == 1, editing_cursor);
+                    int failed_to_generate_string_for_last_name = construct_field_display_string(display_string_last_name, size_ln, "Last Name", display_last_name, editing_index == 1, editing_cursor);
                     if (failed_to_generate_string_for_last_name) {
                         fprintf(stderr, "Failed to generate string for last name");
                     }
@@ -136,9 +221,9 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     ;
                     {
                     /* Displaying Email */
-                    size_t size_e = snprintf(NULL, 0, "(Editing) %s: %s", "Email", contact.email);
+                    size_t size_e = snprintf(NULL, 0, "(Editing) %s: %s", "Email", display_email);
                     char display_string_email[size_e + 1];
-                    int failed_to_generate_string_for_email = construct_field_display_string(display_string_email, size_e, "Email", contact.email, editing_index == 2, editing_cursor);
+                    int failed_to_generate_string_for_email = construct_field_display_string(display_string_email, size_e, "Email", display_email, editing_index == 2, editing_cursor);
                     if (failed_to_generate_string_for_email) {
                         fprintf(stderr, "Failed to generate string for email");
                     }
@@ -150,9 +235,9 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     ;
                     {
                     /* Displaying Phone */
-                    size_t size_p = snprintf(NULL, 0, "(Editing) %s: %s", "Phone", contact.phone);
+                    size_t size_p = snprintf(NULL, 0, "(Editing) %s: %s", "Phone", display_phone);
                     char display_string_phone[size_p + 1];
-                    int failed_to_generate_string_for_phone = construct_field_display_string(display_string_phone, size_p, "Phone", contact.phone, editing_index == 3, editing_cursor);
+                    int failed_to_generate_string_for_phone = construct_field_display_string(display_string_phone, size_p, "Phone", display_phone, editing_index == 3, editing_cursor);
                     if (failed_to_generate_string_for_phone) {
                         fprintf(stderr, "Failed to generate string for phone");
                     }
@@ -163,9 +248,9 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     ;
                     {
                     /* Displaying Address */
-                    size_t size_a = snprintf(NULL, 0, "(Editing) %s: %s", "Address", contact.address);
+                    size_t size_a = snprintf(NULL, 0, "(Editing) %s: %s", "Address", display_address);
                     char display_string_address[size_a + 1];
-                    int failed_to_generate_string_for_address = construct_field_display_string(display_string_address, size_a, "Address", contact.address, editing_index == 4, editing_cursor);
+                    int failed_to_generate_string_for_address = construct_field_display_string(display_string_address, size_a, "Address", display_address, editing_index == 4, editing_cursor);
                     if (failed_to_generate_string_for_address) {
                         fprintf(stderr, "Failed to generate string for address");
                     }
@@ -177,9 +262,9 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     ;
                     {
                     /* Displaying Notes */
-                    size_t size_n = snprintf(NULL, 0, "(Editing) %s: %s", "Notes", contact.notes);
+                    size_t size_n = snprintf(NULL, 0, "(Editing) %s: %s", "Notes", display_notes);
                     char display_string_notes[size_n + 1];
-                    int failed_to_generate_string_for_notes = construct_field_display_string(display_string_notes, size_n, "Notes", contact.notes, editing_index == 5, editing_cursor);
+                    int failed_to_generate_string_for_notes = construct_field_display_string(display_string_notes, size_n, "Notes", display_notes, editing_index == 5, editing_cursor);
                     if (failed_to_generate_string_for_notes) {
                         fprintf(stderr, "Failed to generate string for notes");
                     }
@@ -193,12 +278,26 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
 
         wrefresh(win);
 
+        if (confirmed == 1) {
+            mvwprintw(winOutput, 4, 1, "Press ENTER to save, ESCAPE to escape, or keep typing");
+        }
+
+        wrefresh(winOutput);
+
         ch = wgetch(win);
 
         if (editing_index != -1) {
             wrefresh(win);
 
             switch(ch) {
+                case 27: /* escape */
+                     if (editing_cursor >= 0 && confirmed != 1) {
+                        editing_index = -1;
+                        editing_cursor = -1;
+                     }
+                     confirmed = 0;
+
+
                 case KEY_RIGHT:
                     editing_cursor++;
                     if (editing_cursor > (int)strlen(edited_value)) {
@@ -216,13 +315,39 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     if ((int)strlen(edited_value) <= 0) {
                         break;
                     }
-
-                    editing_index = -1;
-                    editing_cursor = -1;
+                    confirmed++;
 
 
+                    if (confirmed == 2) {
 
-                    editLine(contact, filepath, contact.index);
+
+                        switch (editing_index) {
+                            case 0:
+                                strcpy(contact.first_name, edited_value);
+                                break;
+                            case 1:
+                                strcpy(contact.last_name, edited_value);
+                                break;
+                            case 2:
+                                strcpy(contact.email, edited_value);
+                                break;
+                            case 3:
+                                strcpy(contact.phone, edited_value);
+                                break;
+                            case 4:
+                                strcpy(contact.address, edited_value);
+                                break;
+                            case 5:
+                                strcpy(contact.notes, edited_value);
+                                break;
+                        }
+
+                        editLine(contact, filepath, contact.index);
+                        confirmed = 0;
+                        editing_index = -1;
+                        editing_cursor = -1;
+                    }
+                    wrefresh(winOutput);
                     break;
                 case KEY_BACKSPACE:
                     /* When backspacing, we have to decriment the position of each value after the cursor */
@@ -306,27 +431,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
         }
 
         wrefresh(win);
-        switch (editing_index) {
-            case 0:
-                strcpy(contact.first_name, edited_value);
-                break;
-            case 1:
-                strcpy(contact.last_name, edited_value);
-                break;
-            case 2:
-                strcpy(contact.email, edited_value);
-                break;
-            case 3:
-                strcpy(contact.phone, edited_value);
-                break;
-            case 4:
-                strcpy(contact.address, edited_value);
-                break;
-            case 5:
-                strcpy(contact.notes, edited_value);
-                break;
-        }
-        wrefresh(win);
+        wrefresh(winOutput);
     }
 }
 
