@@ -104,6 +104,8 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
             mvwprintw(winOutput, 0, 1, "press ENTER to edit a field");
         }
 
+        // DEBUG
+
         wrefresh(winOutput);
         for (int i = 0; i < num_properties; i++) {
             if (i == highlight) {
@@ -165,14 +167,14 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     case 3:
                         ;
                         {
-                            strncpy(display_address,edited_value,CHARWIDTH);
+                            strncpy(display_phone,edited_value,CHARWIDTH);
                             display_address[CHARWIDTH] = '\0';
                             break;
                         }
                     case 4:
                         ;
                         {
-                            strncpy(display_phone,edited_value,CHARWIDTH);
+                            strncpy(display_address,edited_value,CHARWIDTH);
                             display_phone[CHARWIDTH] = '\0';
                             break;
                         }
@@ -361,7 +363,7 @@ void display_contact(WINDOW *win, Contact contact, char* filepath,WINDOW *winOut
                     break;
                 default:
                     ;
-                    char* allowed_chars = " \t\n.@,+-_#()&^%$3\"!*=`\\><'";
+                    char* allowed_chars = " \t\n.@,+-_#()&^%$3\"!*=`\\><':";
                     if ((int)strlen(edited_value) < CHARWIDTH && 
                             (isalnum(ch) || strchr(allowed_chars,ch) != NULL)) {
 
